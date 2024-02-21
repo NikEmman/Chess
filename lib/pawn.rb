@@ -41,6 +41,7 @@ class Pawn
       board[row][column].color != @color
   end
 
+  # just a concept method, later for King moves and check etc
   def threatens?(board)
     if @color == 'white'
       board[@row - 1][@column + 1] || board[@row - 1][@column - 1]
