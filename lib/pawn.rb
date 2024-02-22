@@ -2,7 +2,7 @@
 
 # pawn class
 class Pawn
-  attr_accessor :row, :column
+  attr_accessor :row, :column, :has_moved
   attr_reader :color, :sprite
 
   def initialize(color, row, column)
@@ -13,14 +13,6 @@ class Pawn
     @has_moved = false
   end
 
-  def move(target_row, target_column, board)
-    @has_moved = true
-    return 'Invalid move, try again' unless valid?(target_row, target_column, board)
-
-    @row = target_row
-    @column = target_column
-  end
-
   def valid?(row, column, board)
     move_one?(row, column, board) ||
       move_two?(row, column, board) ||
@@ -28,11 +20,15 @@ class Pawn
   end
 
   def move_one?(row, column, board)
-    @color == 'white' && row == @row - 1 && @column == column && board[row][column] == '   '
+    (row == (@color == 'white' ? @row - 1 : @row + 1)) &&
+      @column == column &&
+      board[row][column].nil?
   end
 
   def move_two?(row, column, board)
-    @color == 'white' && row == @row - 2 && @column == column && board[row][column] == '   ' && @has_moved == false
+    (row == (@color == 'white' ? @row - 2 : @row + 2)) &&
+      @column == column && board[row][column].nil? &&
+      @has_moved == false
   end
 
   def move_diagonal?(row, column, board)

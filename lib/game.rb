@@ -28,6 +28,17 @@ class Game
     piece.nil? ? '   ' : piece.sprite
   end
 
+  def move(row_old, column_old, row_new, column_new)
+    return 'Invalid move, try again' unless @board[row_old][column_old]&.valid?(row_new, column_new, @board)
+
+    @board[row_old][column_old].has_moved = true
+    temp = @board[row_old][column_old]
+    @board[row_old][column_old] = nil
+    temp.row = row_new
+    temp.column = column_new
+    @board[row_new][column_new] = temp
+  end
+
   def display_chessboard
     puts '   1  2  3  4  5  6  7  8 '
     puts "H \e[47m#{display_piece(@board[0][0])}\e[0m\e[100m#{display_piece(@board[0][1])}\e[0m\e[47m#{display_piece(@board[0][2])}\e[0m\e[100m#{display_piece(@board[0][3])}\e[0m\e[47m#{display_piece(@board[0][4])}\e[0m\e[100m#{display_piece(@board[0][5])}\e[0m\e[47m#{display_piece(@board[0][6])}\e[0m\e[100m#{display_piece(@board[0][7])}\e[0m H"
@@ -41,6 +52,11 @@ class Game
     puts '   1  2  3  4  5  6  7  8 '
   end
 end
-
+# a = Game.new
+# a.populate
+# a.display_chessboard
+# a.move(6, 1, 4, 1)
+# a.display_chessboard
+# gets
 # rubocop:enable Layout/LineLength
 # rubocop:enable Metrics/AbcSize
