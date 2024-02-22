@@ -3,6 +3,7 @@
 # frozen_string_literal: true
 
 require_relative 'pawn'
+require_relative 'rook'
 # game class
 class Game
   attr_accessor :board, :pieces
@@ -20,8 +21,14 @@ class Game
   end
 
   def populate
-    @board[6].each_index { |index| @board[6][index] = Pawn.new('white', 6, index) }
-    @board[1].each_index { |index| @board[1][index] = Pawn.new('black', 1, index) }
+    @board[6].each_index do |index|
+      @board[6][index] = Pawn.new('white', 6, index)
+      @board[1][index] = Pawn.new('black', 1, index)
+    end
+    [0, 7].each do |i|
+      @board[7][i] = Rook.new('white', 7, i)
+      @board[0][i] = Rook.new('black', 7, i)
+    end
   end
 
   def display_piece(piece)
@@ -29,7 +36,7 @@ class Game
   end
 
   def move(row_old, column_old, row_new, column_new)
-    return 'Invalid move, try again' unless @board[row_old][column_old]&.valid?(row_new, column_new, @board)
+    return 'Invalid move, try again' unless @board[row_old][column_old]&.valid_2?(row_new, column_new, @board)
 
     @board[row_old][column_old].has_moved = true
     temp = @board[row_old][column_old]
