@@ -4,6 +4,7 @@
 
 require_relative 'pawn'
 require_relative 'rook'
+require_relative 'knight'
 # game class
 class Game
   attr_accessor :board, :pieces
@@ -29,6 +30,10 @@ class Game
       @board[7][i] = Rook.new('white', 7, i)
       @board[0][i] = Rook.new('black', 7, i)
     end
+    [1, 6].each do |i|
+      @board[7][i] = Knight.new('white', 7, i)
+      @board[0][i] = Knight.new('black', 7, i)
+    end
   end
 
   def display_piece(piece)
@@ -38,7 +43,7 @@ class Game
   def move(row_old, column_old, row_new, column_new)
     return 'Invalid move, try again' unless @board[row_old][column_old]&.valid?(row_new, column_new, @board)
 
-    @board[row_old][column_old].has_moved = true
+    @board[row_old][column_old].has_moved = true if @board[row_old][column_old].methods.include? 'has_moved'
     temp = @board[row_old][column_old]
     @board[row_old][column_old] = nil
     temp.row = row_new
