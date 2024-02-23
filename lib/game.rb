@@ -36,7 +36,7 @@ class Game
   end
 
   def move(row_old, column_old, row_new, column_new)
-    return 'Invalid move, try again' unless @board[row_old][column_old]&.valid_2?(row_new, column_new, @board)
+    return 'Invalid move, try again' unless @board[row_old][column_old]&.valid?(row_new, column_new, @board)
 
     @board[row_old][column_old].has_moved = true
     temp = @board[row_old][column_old]

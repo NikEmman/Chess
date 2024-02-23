@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/CyclomaticComplexity
 # rubocop:disable Metrics/AbcSize
 # frozen_string_literal: true
 
@@ -20,44 +21,23 @@ class Rook
       move_in_column?(row, column, board)
   end
 
-  def valid_2?(row, column, board)
-    move_in_row_2?(row, column, board) ||
-      move_in_column_2?(row, column, board)
-  end
-
   def move_in_row?(row, column, board)
-    row == @row &&
-      ((1..column).all? { |i| board[@row][column + i].nil? }) ||
-      ((1..column).all? { |i| board[@row][column - i].nil? }) ||
-      (((1..column - 1).all? { |i| board[@row][column + i].nil? }) && board[@row][column].color != @color) ||
-      (((1..column - 1).all? { |i| board[@row][column - i].nil? }) && board[@row][column].color != @color)
-  end
-
-  def move_in_row_2?(row, column, board)
-    return false unless row == @row
-
-    path = (@column...column).map { |i| board[@row][i] }
-
-    path.all?(&:nil?) || (path[0...-1].all?(&:nil?) && path.last.color != @color)
+    row == @row && @column != column && board[row][column]&.color != @color &&
+      (((1..column - 1).each { |i| board[@row][@column + i].nil? }) ||
+      ((1..column - 1).each { |i| board[@row][@column - i].nil? }))
   end
 
   def move_in_column?(row, column, board)
-    column == @column &&
-      ((1..row).all? { |i| board[@row + i][column].nil? }) ||
-      ((1..row).all? { |i| board[@row - i][column].nil? }) ||
-      (((1..row - 1).all? { |i| board[@row + i][column].nil? }) && board[row][column].color != @color) ||
-      (((1..row - 1).all? { |i| board[@row - i][column].nil? }) && board[row][column].color != @color)
+    column == @column && @row != row && board[row][column]&.color != @color &&
+      ((@row + 1..row - 1).each { |i| board[i][@column].nil? } ||
+      (@row - 1..row + 1).each { |i| board[i][@column].nil? })
   end
 
-  def move_in_column_2?(row, column, board)
-    return false unless column == @column
-
-    path = (@row...row).map { |i| board[i][@column] }
-
-    path.all?(&:nil?) || (path[0...-1].all?(&:nil?) && path.last.color != @color)
+  # 0  6 ->1,5  ->      ------          6 , 0 -> 5,1
+  # just a concept method, later for King moves and check etc, piece threatens all squares it may move to
+  def threatens?(row, column, board)
+    board.each { |square| square.valid?(row, column, board) }
   end
-
-  # just a concept method, later for King moves and check etc
-  def threatens?; end
 end
 # rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/CyclomaticComplexity
