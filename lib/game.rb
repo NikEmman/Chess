@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/MethodLength
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Layout/LineLength
 # frozen_string_literal: true
@@ -5,6 +6,7 @@
 require_relative 'pawn'
 require_relative 'rook'
 require_relative 'knight'
+require_relative 'bishop'
 # game class
 class Game
   attr_accessor :board, :pieces
@@ -22,10 +24,10 @@ class Game
   end
 
   def populate
-    @board[6].each_index do |index|
-      @board[6][index] = Pawn.new('white', 6, index)
-      @board[1][index] = Pawn.new('black', 1, index)
-    end
+    # @board[6].each_index do |index|
+    #   @board[6][index] = Pawn.new('white', 6, index)
+    #   @board[1][index] = Pawn.new('black', 1, index)
+    # end
     [0, 7].each do |i|
       @board[7][i] = Rook.new('white', 7, i)
       @board[0][i] = Rook.new('black', 7, i)
@@ -33,6 +35,10 @@ class Game
     [1, 6].each do |i|
       @board[7][i] = Knight.new('white', 7, i)
       @board[0][i] = Knight.new('black', 7, i)
+    end
+    [2, 5].each do |i|
+      @board[7][i] = Bishop.new('white', 7, i)
+      @board[0][i] = Bishop.new('black', 7, i)
     end
   end
 
@@ -43,7 +49,7 @@ class Game
   def move(row_old, column_old, row_new, column_new)
     return 'Invalid move, try again' unless @board[row_old][column_old]&.valid?(row_new, column_new, @board)
 
-    @board[row_old][column_old].has_moved = true if @board[row_old][column_old].methods.include? 'has_moved'
+    @board[row_old][column_old].has_moved = true
     temp = @board[row_old][column_old]
     @board[row_old][column_old] = nil
     temp.row = row_new
@@ -72,3 +78,4 @@ end
 # gets
 # rubocop:enable Layout/LineLength
 # rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/MethodLength
