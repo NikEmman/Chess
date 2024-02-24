@@ -1,5 +1,3 @@
-# rubocop:disable Metrics/CyclomaticComplexity
-# rubocop:disable Metrics/AbcSize
 # frozen_string_literal: true
 
 # rook class
@@ -17,20 +15,31 @@ class Rook
 
   # neither validation is working
   def valid?(row, column, board)
-    move_in_row?(row, column, board) ||
-      move_in_column?(row, column, board)
+    (enemy_piece?(row, column, board) || castling?(row, column, board)) &&
+      (move_in_row?(row, column, board) ||
+        move_in_column?(row, column, board))
   end
 
   def move_in_row?(row, column, board)
-    row == @row && @column != column && board[row][column]&.color != @color &&
+    row == @row && @column != column &&
       (((1..column - 1).each { |i| board[@row][@column + i].nil? }) ||
       ((1..column - 1).each { |i| board[@row][@column - i].nil? }))
   end
 
   def move_in_column?(row, column, board)
-    column == @column && @row != row && board[row][column]&.color != @color &&
+    column == @column && @row != row &&
       ((@row + 1..row - 1).each { |i| board[i][@column].nil? } ||
       (@row - 1..row + 1).each { |i| board[i][@column].nil? })
+  end
+
+  def enemy_piece?(row, column, board)
+    board[row][column]&.color != @color
+  end
+
+  def castling?(row, column, board)
+    board[@row][@column].color == board[row][column].color &&
+      board[row][column].has_moved == false &&
+      @has_moved == false
   end
 
   # 0  6 ->1,5  ->      ------          6 , 0 -> 5,1
@@ -39,5 +48,3 @@ class Rook
     board.each { |square| square.valid?(row, column, board) }
   end
 end
-# rubocop:enable Metrics/AbcSize
-# rubocop:enable Metrics/CyclomaticComplexity

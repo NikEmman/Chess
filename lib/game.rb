@@ -1,4 +1,3 @@
-# rubocop:disable Metrics/MethodLength
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Layout/LineLength
 # frozen_string_literal: true
@@ -7,6 +6,8 @@ require_relative 'pawn'
 require_relative 'rook'
 require_relative 'knight'
 require_relative 'bishop'
+require_relative 'queen'
+require_relative 'king'
 # game class
 class Game
   attr_accessor :board, :pieces
@@ -30,16 +31,20 @@ class Game
     # end
     [0, 7].each do |i|
       @board[7][i] = Rook.new('white', 7, i)
-      @board[0][i] = Rook.new('black', 7, i)
+      @board[0][i] = Rook.new('black', 0, i)
     end
-    [1, 6].each do |i|
-      @board[7][i] = Knight.new('white', 7, i)
-      @board[0][i] = Knight.new('black', 7, i)
-    end
-    [2, 5].each do |i|
-      @board[7][i] = Bishop.new('white', 7, i)
-      @board[0][i] = Bishop.new('black', 7, i)
-    end
+    # [1, 6].each do |i|
+    #   @board[7][i] = Knight.new('white', 7, i)
+    #   @board[0][i] = Knight.new('black', 0, i)
+    # end
+    # [2, 5].each do |i|
+    #   @board[7][i] = Bishop.new('white', 7, i)
+    #   @board[0][i] = Bishop.new('black', 0, i)
+    # end
+    @board[7][3] = Queen.new('white', 7, 3)
+    @board[0][3] = Queen.new('black', 0, 3)
+    @board[7][4] = King.new('white', 7, 4)
+    @board[0][4] = King.new('black', 0, 4)
   end
 
   def display_piece(piece)
@@ -47,14 +52,34 @@ class Game
   end
 
   def move(row_old, column_old, row_new, column_new)
-    return 'Invalid move, try again' unless @board[row_old][column_old]&.valid?(row_new, column_new, @board)
+    'Invalid move, try again' unless @board[row_old][column_old]&.valid?(row_new, column_new, @board)
+    if @board[row_old][column_old].castling?(row_new, column_new, @board)
+      castling(row_old, column_old, row_new, column_new)
+    else
+      normal_move(row_old, column_old, row_new, column_new)
+    end
+  end
 
+  def normal_move(row_old, column_old, row_new, column_new)
     @board[row_old][column_old].has_moved = true
     temp = @board[row_old][column_old]
     @board[row_old][column_old] = nil
     temp.row = row_new
     temp.column = column_new
     @board[row_new][column_new] = temp
+  end
+
+  def castling(row_old, column_old, row_new, column_new)
+    @board[row_old][column_old].has_moved = true
+    @board[row_new][column_new].has_moved = true
+    temp1 = @board[row_old][column_old]
+    temp2 = @board[row_new][column_new]
+    temp1.row = row_new
+    temp1.column = column_new
+    temp2.row = row_old
+    temp2.column = column_old
+    @board[row_old][column_old] = temp2
+    @board[row_new][column_new] = temp1
   end
 
   def display_chessboard
@@ -78,4 +103,3 @@ end
 # gets
 # rubocop:enable Layout/LineLength
 # rubocop:enable Metrics/AbcSize
-# rubocop:enable Metrics/MethodLength
