@@ -14,53 +14,41 @@ class King
   end
 
   def valid?(row, column, board)
-    (enemy_piece?(row, column, board) || castling?(row, column, board)) &&
-      (valid_diagonal?(row, column, board) ||
+    castling?(row, column, board) ||
+      valid_diagonal?(row, column, board) ||
       valid_in_row?(row, column, board) ||
-      valid_in_column?(row, column, board))
+      valid_in_column?(row, column, board)
   end
 
   def valid_diagonal?(row, column, board)
-    only_one_square?(row, column) &&
-
-      (@row - row).abs == (@column - column).abs &&
-      diagonal_squares?(row, column, board)
-  end
-
-  def only_one_square?(row, column)
-    (@column - column).abs == 1 && (@row - row).abs == 1
-  end
-
-  def diagonal_squares?(row, column, board)
-    (board.each_index do |i|
-       board[i].each_index do |j|
-         next unless (@row - i).abs == (@column - j).abs && (@row..row).include?(i) && (@column..column).include?(j)
-
-         board[i][j].nil?
-       end
-     end)
-  end
-
-  def enemy_piece?(row, column, board)
-    board[row][column]&.color != @color
+    (@column - column).abs == 1 &&
+      (@row - row).abs == 1 &&
+      board[row][column]&.color != @color
   end
 
   def valid_in_row?(row, column, board)
-    row == @row && (@column - column).abs == 1 &&
-      (((1..column - 1).each { |i| board[@row][@column + i].nil? }) ||
-      ((1..column - 1).each { |i| board[@row][@column - i].nil? }))
+    row == @row &&
+      (@column - column).abs == 1 &&
+      board[row][column]&.color != @color
   end
 
   def valid_in_column?(row, column, board)
-    column == @column && (@row - row).abs == 1 &&
-      ((@row + 1..row - 1).each { |i| board[i][@column].nil? } ||
-      (@row - 1..row + 1).each { |i| board[i][@column].nil? })
+    column == @column &&
+      (@row - row).abs == 1 &&
+      board[row][column]&.color != @color
   end
 
   def castling?(row, column, board)
-    board[@row][@column].color == board[row][column].color &&
-      board[row][column].has_moved == false &&
-      @has_moved == false
+    board[@row][@column].color == board[row][column]&.color &&
+      board[row][column]&.has_moved == false &&
+      @has_moved == false &&
+      board[row][column].instance_of?(Rook) &&
+      clear_between?(column, board)
+  end
+
+  def clear_between?(column, board)
+    board[@row][@column + 1...column].all?(&:nil?) ||
+      board[@row][@column - 1...column].all?(&:nil?)
   end
 
   # just a concept method, later for King moves and check etc, piece threatens all squares it may move to

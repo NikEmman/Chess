@@ -52,12 +52,19 @@ class Game
   end
 
   def move(row_old, column_old, row_new, column_new)
-    'Invalid move, try again' unless @board[row_old][column_old]&.valid?(row_new, column_new, @board)
-    if @board[row_old][column_old].castling?(row_new, column_new, @board)
-      castling(row_old, column_old, row_new, column_new)
+    return 'Invalid move, try again' unless @board[row_old][column_old].valid?(row_new, column_new, @board)
+
+    if attempt_castling?(row_old, column_old, row_new, column_new)
+      castling_move(row_old, column_old, row_new, column_new)
     else
       normal_move(row_old, column_old, row_new, column_new)
     end
+  end
+
+  def attempt_castling?(row_old, column_old, row_new, column_new)
+    return false unless @board[row_old][column_old].respond_to?(:castling?)
+
+    @board[row_old][column_old].castling?(row_new, column_new, @board)
   end
 
   def normal_move(row_old, column_old, row_new, column_new)
@@ -69,7 +76,7 @@ class Game
     @board[row_new][column_new] = temp
   end
 
-  def castling(row_old, column_old, row_new, column_new)
+  def castling_move(row_old, column_old, row_new, column_new)
     @board[row_old][column_old].has_moved = true
     @board[row_new][column_new].has_moved = true
     temp1 = @board[row_old][column_old]

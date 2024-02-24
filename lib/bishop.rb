@@ -18,7 +18,6 @@ class Bishop
       valid_diagonal?(row, column, board)
   end
 
-  # to_be_tested
   def valid_diagonal?(row, column, board)
     different_square?(row, column) &&
       (@row - row).abs == (@column - column).abs &&

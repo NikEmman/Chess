@@ -15,7 +15,6 @@ class Knight
     @has_moved = false
   end
 
-  # neither validation is working
   def valid?(row, column, board)
     row != @row &&
       @column != column &&
