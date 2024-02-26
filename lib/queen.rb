@@ -46,15 +46,25 @@ class Queen
   end
 
   def valid_in_row?(row, column, board)
-    row == @row && @column != column &&
-      (((1..column - 1).each { |i| board[@row][@column + i].nil? }) ||
-      ((1..column - 1).each { |i| board[@row][@column - i].nil? }))
+    row == @row &&
+      @column != column &&
+      clear_between_row?(column, board)
   end
 
   def valid_in_column?(row, column, board)
-    column == @column && @row != row &&
-      ((@row + 1..row - 1).each { |i| board[i][@column].nil? } ||
-      (@row - 1..row + 1).each { |i| board[i][@column].nil? })
+    column == @column &&
+      @row != row &&
+      clear_between_column?(row, board)
+  end
+
+  def clear_between_row?(column, board)
+    min_column, max_column = [@column, column].sort
+    (min_column + 1...max_column).all? { |i| board[@row][i].nil? }
+  end
+
+  def clear_between_column?(row, board)
+    min_row, max_row = [@row, row].sort
+    (min_row + 1...max_row).all? { |i| board[i][@column].nil? }
   end
 
   # just a concept method, later for King moves and check etc, piece threatens all squares it may move to

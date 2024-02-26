@@ -22,22 +22,23 @@ class Rook
   def move_in_row?(row, column, board)
     row == @row && @column != column &&
       enemy_piece?(row, column, board) &&
-      clear_between?(column, board)
+      clear_between_row?(column, board)
   end
 
-  def clear_between?(column, board)
-    board[@row][@column + 1...column].all?(&:nil?) ||
-      board[@row][@column - 1...column].all?(&:nil?)
+  def clear_between_row?(column, board)
+    min_column, max_column = [@column, column].sort
+    (min_column + 1...max_column).all? { |i| board[@row][i].nil? }
+  end
 
-    # ((1..column - 1).all? { |i| board[@row][@column + i].nil? }) ||
-    #   ((1..column - 1).all? { |i| board[@row][@column - i].nil? })
+  def clear_between_column?(row, board)
+    min_row, max_row = [@row, row].sort
+    (min_row + 1...max_row).all? { |i| board[i][@column].nil? }
   end
 
   def move_in_column?(row, column, board)
     column == @column && @row != row &&
       enemy_piece?(row, column, board) &&
-      ((@row + 1..row - 1).all? { |i| board[i][@column].nil? } ||
-      (@row - 1..row + 1).all? { |i| board[i][@column].nil? })
+      clear_between_column?(row, board)
   end
 
   def enemy_piece?(row, column, board)
@@ -49,7 +50,7 @@ class Rook
       board[row][column].has_moved == false &&
       @has_moved == false &&
       board[row][column].instance_of?(King) &&
-      clear_between?(column, board)
+      clear_between_row?(column, board)
   end
 
   # just a concept method, later for King moves and check etc, piece threatens all squares it may move to
