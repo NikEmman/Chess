@@ -37,10 +37,10 @@ class Game
     #   @board[7][i] = Knight.new('white', 7, i)
     #   @board[0][i] = Knight.new('black', 0, i)
     # end
-    # [2, 5].each do |i|
-    #   @board[7][i] = Bishop.new('white', 7, i)
-    #   @board[0][i] = Bishop.new('black', 0, i)
-    # end
+    [2, 5].each do |i|
+      @board[7][i] = Bishop.new('white', 7, i)
+      @board[0][i] = Bishop.new('black', 0, i)
+    end
     @board[7][3] = Queen.new('white', 7, 3)
     @board[0][3] = Queen.new('black', 0, 3)
     @board[7][4] = King.new('white', 7, 4)

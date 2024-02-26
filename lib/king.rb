@@ -14,10 +14,11 @@ class King
   end
 
   def valid?(row, column, board)
-    castling?(row, column, board) ||
+    not_threatened_by_enemy_piece?(column, board) &&
+      (castling?(row, column, board) ||
       valid_diagonal?(row, column, board) ||
       valid_in_row?(row, column, board) ||
-      valid_in_column?(row, column, board)
+      valid_in_column?(row, column, board))
   end
 
   def valid_diagonal?(row, column, board)
@@ -30,6 +31,17 @@ class King
     row == @row &&
       (@column - column).abs == 1 &&
       board[row][column]&.color != @color
+  end
+
+  # not working
+  def not_threatened_by_enemy_piece?(column, board)
+    board.each do |row|
+      row.each do |piece|
+        next if piece.nil? || piece.color == @color
+        return false if piece.valid?(row, column, board)
+      end
+    end
+    true
   end
 
   def valid_in_column?(row, column, board)
