@@ -14,7 +14,7 @@ class Queen
   end
 
   def valid?(row, column, board)
-    enemy_piece?(row, column, board) &&
+    valid_destination?(row, column, board) &&
       (valid_diagonal?(row, column, board) ||
       valid_in_row?(row, column, board) ||
       valid_in_column?(row, column, board))
@@ -48,7 +48,7 @@ class Queen
     true
   end
 
-  def enemy_piece?(row, column, board)
+  def valid_destination?(row, column, board)
     board[row][column]&.color != @color
   end
 

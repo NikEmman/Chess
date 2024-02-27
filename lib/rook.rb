@@ -15,8 +15,7 @@ class Rook
 
   def valid?(row, column, board)
     move_in_row?(row, column, board) ||
-      move_in_column?(row, column, board) ||
-      castling?(row, column, board)
+      move_in_column?(row, column, board)
   end
 
   def move_in_row?(row, column, board)
@@ -43,14 +42,6 @@ class Rook
 
   def enemy_piece?(row, column, board)
     board[row][column]&.color != @color
-  end
-
-  def castling?(row, column, board)
-    board[@row][@column].color == board[row][column]&.color &&
-      board[row][column].has_moved == false &&
-      @has_moved == false &&
-      board[row][column].instance_of?(King) &&
-      clear_between_row?(column, board)
   end
 
   # just a concept method, later for King moves and check etc, piece threatens all squares it may move to

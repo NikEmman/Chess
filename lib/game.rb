@@ -31,18 +31,18 @@ class Game
     # end
     [0, 7].each do |i|
       @board[7][i] = Rook.new('white', 7, i)
-      @board[0][i] = Rook.new('black', 0, i)
+      # @board[0][i] = Rook.new('black', 0, i)
     end
     # [1, 6].each do |i|
     #   @board[7][i] = Knight.new('white', 7, i)
     #   @board[0][i] = Knight.new('black', 0, i)
     # end
-    [2, 5].each do |i|
-      @board[7][i] = Bishop.new('white', 7, i)
-      @board[0][i] = Bishop.new('black', 0, i)
-    end
-    @board[7][3] = Queen.new('white', 7, 3)
-    @board[0][3] = Queen.new('black', 0, 3)
+    # [2, 5].each do |i|
+    #   @board[7][i] = Bishop.new('white', 7, i)
+    #   @board[0][i] = Bishop.new('black', 0, i)
+    # end
+    #  @board[7][3] = Queen.new('white', 7, 3)
+    # @board[0][3] = Queen.new('black', 0, 3)
     @board[7][4] = King.new('white', 7, 4)
     @board[0][4] = King.new('black', 0, 4)
   end
@@ -52,13 +52,22 @@ class Game
   end
 
   def move(row_old, column_old, row_new, column_new)
-    return 'Invalid move, try again' unless @board[row_old][column_old].valid?(row_new, column_new, @board)
+    return 'Invalid move, try again' unless valid?(row_old, column_old, row_new, column_new)
 
     if attempt_castling?(row_old, column_old, row_new, column_new)
       castling_move(row_old, column_old, row_new, column_new)
     else
       normal_move(row_old, column_old, row_new, column_new)
     end
+  end
+
+  def valid?(row_old, column_old, row_new, column_new)
+    @board[row_old][column_old].valid?(row_new, column_new, @board) &&
+      if @board[row_old][column_old].respond_to?(:not_threatened_by_enemy_piece?)
+        @board[row_old][column_old].not_threatened_by_enemy_piece?(row_new, column_new, @board)
+      else
+        true
+      end
   end
 
   def attempt_castling?(row_old, column_old, row_new, column_new)
@@ -79,14 +88,16 @@ class Game
   def castling_move(row_old, column_old, row_new, column_new)
     @board[row_old][column_old].has_moved = true
     @board[row_new][column_new].has_moved = true
-    temp1 = @board[row_old][column_old]
-    temp2 = @board[row_new][column_new]
-    temp1.row = row_new
-    temp1.column = column_new
-    temp2.row = row_old
-    temp2.column = column_old
-    @board[row_old][column_old] = temp2
-    @board[row_new][column_new] = temp1
+
+    direction = column_new > column_old ? 1 : -1
+
+    @board[row_old][column_old].column = column_old + 2 * direction
+    @board[row_old][column_old + 2 * direction] = @board[row_old][column_old]
+    @board[row_old][column_old] = nil
+
+    @board[row_new][column_new].column = column_old - direction
+    @board[row_new][column_old + direction] = @board[row_new][column_new]
+    @board[row_new][column_new] = nil
   end
 
   def display_chessboard

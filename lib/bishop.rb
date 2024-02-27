@@ -14,7 +14,7 @@ class Bishop
   end
 
   def valid?(row, column, board)
-    enemy_piece?(row, column, board) &&
+    valid_destination?(row, column, board) &&
       valid_diagonal?(row, column, board)
   end
 
@@ -28,7 +28,7 @@ class Bishop
     row != @row && @column != column
   end
 
-  def enemy_piece?(row, column, board)
+  def valid_destination?(row, column, board)
     board[row][column]&.color != @color
   end
 

@@ -1,3 +1,4 @@
+# rubocop:disable Style/EachForSimpleLoop
 # frozen_string_literal: true
 
 # rook class
@@ -14,11 +15,10 @@ class King
   end
 
   def valid?(row, column, board)
-    not_threatened_by_enemy_piece?(column, board) &&
-      (castling?(row, column, board) ||
+    castling?(row, column, board) ||
       valid_diagonal?(row, column, board) ||
       valid_in_row?(row, column, board) ||
-      valid_in_column?(row, column, board))
+      valid_in_column?(row, column, board)
   end
 
   def valid_diagonal?(row, column, board)
@@ -34,11 +34,11 @@ class King
   end
 
   # not working
-  def not_threatened_by_enemy_piece?(column, board)
-    board.each do |row|
-      row.each do |piece|
-        next if piece.nil? || piece.color == @color
-        return false if piece.valid?(row, column, board)
+  def not_threatened_by_enemy_piece?(row, column, board)
+    (0..7).each do |i|
+      (0..7).each do |j|
+        next if board[i][j].nil? || board[i][j].color == @color
+        return false if board[i][j].valid?(row, column, board)
       end
     end
     true
@@ -68,3 +68,4 @@ class King
     board.each { |square| square.valid?(row, column, board) }
   end
 end
+# rubocop:enable Style/EachForSimpleLoop
