@@ -33,7 +33,6 @@ class King
       board[row][column]&.color != @color
   end
 
-  # not working
   def not_threatened_by_enemy_piece?(row, column, board)
     (0..7).each do |i|
       (0..7).each do |j|

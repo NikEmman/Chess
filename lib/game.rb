@@ -42,7 +42,7 @@ class Game
     #   @board[0][i] = Bishop.new('black', 0, i)
     # end
     #  @board[7][3] = Queen.new('white', 7, 3)
-    # @board[0][3] = Queen.new('black', 0, 3)
+    @board[0][3] = Queen.new('black', 0, 3)
     @board[7][4] = King.new('white', 7, 4)
     @board[0][4] = King.new('black', 0, 4)
   end
@@ -63,11 +63,17 @@ class Game
 
   def valid?(row_old, column_old, row_new, column_new)
     @board[row_old][column_old].valid?(row_new, column_new, @board) &&
-      if @board[row_old][column_old].respond_to?(:not_threatened_by_enemy_piece?)
-        @board[row_old][column_old].not_threatened_by_enemy_piece?(row_new, column_new, @board)
-      else
-        true
-      end
+      squares_between_not_threatened?(row_old, column_old, column_new)
+  end
+
+  def squares_between_not_threatened?(row_old, column_old, column_new)
+    if @board[row_old][column_old].respond_to?(:not_threatened_by_enemy_piece?)
+      direction = column_new > column_old ? 1 : -1
+      # checks if squares moved through by king when castling are not threatened by enemy pieces
+      (column_old + direction...column_new).all? { |i| @board[row_old][column_old].not_threatened_by_enemy_piece?(row_old, i, @board) }
+    else
+      true
+    end
   end
 
   def attempt_castling?(row_old, column_old, row_new, column_new)
