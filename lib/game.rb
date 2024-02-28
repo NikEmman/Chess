@@ -43,7 +43,7 @@ class Game
     #   @board[0][i] = Bishop.new('black', 0, i)
     # end
     #  @board[7][3] = Queen.new('white', 7, 3)
-    # @board[0][3] = Queen.new('black', 0, 3)
+    @board[0][3] = Queen.new('black', 0, 3)
     @board[7][4] = King.new('white', 7, 4)
     @board[0][4] = King.new('black', 0, 4)
   end
