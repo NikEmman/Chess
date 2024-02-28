@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Layout/LineLength
 # frozen_string_literal: true
@@ -30,6 +31,8 @@ class Game
     #   @board[6][index] = Pawn.new('white', 6, index)
     #   @board[1][index] = Pawn.new('black', 1, index)
     # end
+    @board[1][2] = Pawn.new('black', 1, 2)
+    @board[7][2] = Pawn.new('black', 7, 2)
     [0, 7].each do |i|
       @board[7][i] = Rook.new('white', 7, i)
       # @board[0][i] = Rook.new('black', 0, i)
@@ -107,6 +110,17 @@ class Game
     true
   end
 
+  # use that after the move
+  def time_for_promotion?(row, column)
+    @board[row][column].is_a?(Pawn) && [7, 0].include?(row)
+  end
+
+  def promote_pawn(row, column)
+    temp = @board[row][column]
+    color = temp.color
+    @board[row][column] = Queen.new(color, row, column)
+  end
+
   def attempt_castling?(row_old, column_old, row_new, column_new)
     return false unless @board[row_old][column_old].respond_to?(:castling?)
 
@@ -158,3 +172,4 @@ end
 # gets
 # rubocop:enable Layout/LineLength
 # rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/ClassLength
