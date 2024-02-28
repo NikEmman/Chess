@@ -13,7 +13,7 @@ class Rook
     @has_moved = false
   end
 
-  def valid?(row, column, board)
+  def valid_move?(row, column, board)
     move_in_row?(row, column, board) ||
       move_in_column?(row, column, board)
   end
@@ -42,10 +42,5 @@ class Rook
 
   def enemy_piece?(row, column, board)
     board[row][column]&.color != @color
-  end
-
-  # just a concept method, later for King moves and check etc, piece threatens all squares it may move to
-  def threatens?(row, column, board)
-    board.each { |square| square.valid?(row, column, board) }
   end
 end

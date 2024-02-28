@@ -13,7 +13,7 @@ class Pawn
     @has_moved = false
   end
 
-  def valid?(row, column, board)
+  def valid_move?(row, column, board)
     move_one?(row, column, board) ||
       move_two?(row, column, board) ||
       move_diagonal?(row, column, board)
@@ -35,14 +35,5 @@ class Pawn
     (row == (@color == 'white' ? @row - 1 : @row + 1)) &&
       (@column == column - 1 || @column == column + 1) &&
       board[row][column].color != @color
-  end
-
-  # just a concept method, later for King moves and check etc
-  def threatens?(board)
-    if @color == 'white'
-      board[@row - 1][@column + 1] || board[@row - 1][@column - 1]
-    else
-      board[@row + 1][@column + 1] || board[@row + 1][@column - 1]
-    end
   end
 end

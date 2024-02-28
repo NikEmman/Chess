@@ -13,7 +13,7 @@ class Bishop
     @has_moved = false
   end
 
-  def valid?(row, column, board)
+  def valid_move?(row, column, board)
     valid_destination?(row, column, board) &&
       valid_diagonal?(row, column, board)
   end

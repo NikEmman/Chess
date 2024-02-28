@@ -13,7 +13,7 @@ class Queen
     @has_moved = false
   end
 
-  def valid?(row, column, board)
+  def valid_move?(row, column, board)
     valid_destination?(row, column, board) &&
       (valid_diagonal?(row, column, board) ||
       valid_in_row?(row, column, board) ||
@@ -72,10 +72,5 @@ class Queen
   def clear_between_column?(row, board)
     min_row, max_row = [@row, row].sort
     (min_row + 1...max_row).all? { |i| board[i][@column].nil? }
-  end
-
-  # just a concept method, later for King moves and check etc, piece threatens all squares it may move to
-  def threatens?(row, column, board)
-    board.each { |square| square.valid?(row, column, board) }
   end
 end

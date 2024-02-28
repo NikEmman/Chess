@@ -1,4 +1,3 @@
-# rubocop:disable Style/EachForSimpleLoop
 # frozen_string_literal: true
 
 # rook class
@@ -12,6 +11,10 @@ class King
     @column = column
     @sprite = color == 'white' ? ' ♔ ' : ' ♚ '
     @has_moved = false
+  end
+
+  def valid_move?(row, column, board)
+    move_safe?(row, column, board) && valid?(row, column, board)
   end
 
   def valid?(row, column, board)
@@ -33,14 +36,34 @@ class King
       board[row][column]&.color != @color
   end
 
-  def not_threatened_by_enemy_piece?(row, column, board)
+  def safe_square?(row, column, board)
     (0..7).each do |i|
       (0..7).each do |j|
         next if board[i][j].nil? || board[i][j].color == @color
-        return false if board[i][j].valid?(row, column, board)
+        return false if board[i][j].valid_move?(row, column, board)
       end
     end
     true
+  end
+
+  # checks if squares moved through by king when moving or castling are not threatened by enemy pieces
+  def squares_passed_safe?(column, board)
+    (@column - column).abs
+    range = column > @column ? (@column + 1...column) : (column + 1...@column)
+
+    range.each do |i|
+      return false unless board[@row][@column].safe_square?(@row, i, board)
+    end
+
+    true
+  end
+
+  def move_safe?(row, column, board)
+    if (@column - column).abs > 1
+      squares_passed_safe?(column, board)
+    else
+      safe_square?(row, column, board)
+    end
   end
 
   def valid_in_column?(row, column, board)
@@ -61,10 +84,4 @@ class King
     min_column, max_column = [@column, column].sort
     (min_column + 1...max_column).all? { |i| board[@row][i].nil? }
   end
-
-  # just a concept method, later for King moves and check etc, piece threatens all squares it may move to
-  def threatens?(row, column, board)
-    board.each { |square| square.valid?(row, column, board) }
-  end
 end
-# rubocop:enable Style/EachForSimpleLoop
