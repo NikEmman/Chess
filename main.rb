@@ -2,6 +2,7 @@
 
 # this method does not consider other conditions that might put the king in check,
 # such as moving a piece that was blocking an enemy’s attack on the king.
+# maybe it should be in game class?
 
 # ----------pawn en-passant move--------------
 # There is one special rule, called taking en-passant. When a pawn makes a double step from the second row to the fourth row,
@@ -12,5 +13,3 @@
 # after the double step, this pawn cannot be taken anymore by an en-passant move.
 
 # pawn promotion
-
-# fix castling http://www.chessvariants.org/d.chess/chess.html

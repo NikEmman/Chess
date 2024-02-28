@@ -63,7 +63,47 @@ class Game
   end
 
   def allowed_move?(row_old, column_old, row_new, column_new)
-    @board[row_old][column_old].valid_move?(row_new, column_new, @board)
+    if @board[row_old][column_old].nil?
+      false
+    else
+      @board[row_old][column_old].valid_move?(row_new, column_new, @board) &&
+        kings_safe?(row_old, column_old, row_new, column_new)
+    end
+  end
+
+  def kings_safe?(row_old, column_old, row_new, column_new)
+    king_pieces = []
+
+    (0..7).each do |row|
+      (0..7).each do |column|
+        king_pieces << @board[row][column] if @board[row][column].is_a?(King)
+      end
+    end
+
+    test_move(row_old, column_old, row_new, column_new, king_pieces)
+  end
+
+  def test_move(row_old, column_old, row_new, column_new, king_pieces)
+    temp = @board[row_new, column_new]
+    normal_move(row_old, column_old, row_new, column_new)
+    result = not_threatens_king?(king_pieces)
+
+    normal_move(row_new, column_new, row_old, column_old)
+    @board[row_new, column_new] = temp
+    result
+  end
+
+  def not_threatens_king?(array)
+    array.each do |king|
+      (0..7).each do |row|
+        (0..7).each do |column|
+          next if @board[row][column].is_a?(King) || @board[row][column].nil?
+
+          return false if @board[row][column].valid_move?(king.row, king.column, @board)
+        end
+      end
+    end
+    true
   end
 
   def attempt_castling?(row_old, column_old, row_new, column_new)
