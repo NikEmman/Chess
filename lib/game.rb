@@ -66,21 +66,23 @@ class Game
     if @board[row_old][column_old].nil?
       false
     else
+      color = @board[row_old][column_old].color
+
       @board[row_old][column_old].valid_move?(row_new, column_new, @board) &&
-        kings_safe?(row_old, column_old, row_new, column_new)
+        king_safe?(row_old, column_old, row_new, column_new, color)
     end
   end
 
-  def kings_safe?(row_old, column_old, row_new, column_new)
-    king_pieces = []
+  def king_safe?(row_old, column_old, row_new, column_new, color)
+    king = nil
 
     (0..7).each do |row|
       (0..7).each do |column|
-        king_pieces << @board[row][column] if @board[row][column].is_a?(King)
+        king = @board[row][column] if @board[row][column].is_a?(King) && @board[row][column].color == color
       end
     end
 
-    test_move(row_old, column_old, row_new, column_new, king_pieces)
+    test_move(row_old, column_old, row_new, column_new, king)
   end
 
   def test_move(row_old, column_old, row_new, column_new, king_pieces)
@@ -93,16 +95,15 @@ class Game
     result
   end
 
-  def not_threatens_king?(array)
-    array.each do |king|
-      (0..7).each do |row|
-        (0..7).each do |column|
-          next if @board[row][column].is_a?(King) || @board[row][column].nil?
+  def not_threatens_king?(king)
+    (0..7).each do |row|
+      (0..7).each do |column|
+        next if @board[row][column].is_a?(King) || @board[row][column].nil?
 
-          return false if @board[row][column].valid_move?(king.row, king.column, @board)
-        end
+        return false if @board[row][column].valid_move?(king.row, king.column, @board)
       end
     end
+
     true
   end
 
