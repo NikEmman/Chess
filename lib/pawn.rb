@@ -2,7 +2,7 @@
 
 # pawn class
 class Pawn
-  attr_accessor :row, :column, :has_moved
+  attr_accessor :row, :column, :has_moved, :en_passant
   attr_reader :color, :sprite
 
   def initialize(color, row, column)
@@ -11,6 +11,7 @@ class Pawn
     @column = column
     @sprite = color == 'white' ? ' ♙ ' : ' ♟ '
     @has_moved = false
+    @en_passant = false
   end
 
   def valid_move?(row, column, board)

@@ -23,14 +23,16 @@ class Game
     # 5 ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
     # 6 ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
     # 7 ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ']
+    @round = 0
+    @previous_turn = 0
     populate
   end
 
   def populate
-    # @board[6].each_index do |index|
-    #   @board[6][index] = Pawn.new('white', 6, index)
-    #   @board[1][index] = Pawn.new('black', 1, index)
-    # end
+    @board[6].each_index do |index|
+      @board[6][index] = Pawn.new('white', 6, index)
+      @board[1][index] = Pawn.new('black', 1, index)
+    end
     @board[1][2] = Pawn.new('black', 1, 2)
     @board[7][2] = Pawn.new('black', 7, 2)
     [0, 7].each do |i|
@@ -119,21 +121,49 @@ class Game
     temp = @board[row][column]
     color = temp.color
     @board[row][column] = Queen.new(color, row, column)
+    puts "Your pawn got promoted to a Queen (don't expect a pay raise though...)"
+  end
+
+  # def normal_move(row_old, column_old, row_new, column_new)
+  #   if @board[row_old][column_old].is_a?(Pawn) && (row_new - row_old).abs == 2
+
+  #     @board[row_old][column_old].en_passant = true
+  #   elsif @board[row_old][column_old].is_a?(Pawn) && (row_new - row_old).abs == 1
+  #     @board[row_old][column_old].en_passant = false
+  #   end
+  #   @board[row_old][column_old].has_moved = true
+  #   temp = @board[row_old][column_old]
+  #   @board[row_old][column_old] = nil
+  #   temp.row = row_new
+  #   temp.column = column_new
+  #   @board[row_new][column_new] = temp
+  # end
+
+  def normal_move(row_old, column_old, row_new, column_new)
+    piece = @board[row_old][column_old]
+
+    piece.en_passant = (row_new - row_old).abs == 2 if piece.is_a?(Pawn)
+
+    piece.has_moved = true
+    @board[row_old][column_old] = nil
+
+    piece.row = row_new
+    piece.column = column_new
+    @board[row_new][column_new] = piece
+  end
+
+  def attempt_en_passant?
+    # PENDING
+  end
+
+  def en_passant_move
+    # PENDING
   end
 
   def attempt_castling?(row_old, column_old, row_new, column_new)
     return false unless @board[row_old][column_old].respond_to?(:castling?)
 
     @board[row_old][column_old].castling?(row_new, column_new, @board)
-  end
-
-  def normal_move(row_old, column_old, row_new, column_new)
-    @board[row_old][column_old].has_moved = true
-    temp = @board[row_old][column_old]
-    @board[row_old][column_old] = nil
-    temp.row = row_new
-    temp.column = column_new
-    @board[row_new][column_new] = temp
   end
 
   def castling_move(row_old, column_old, row_new, column_new)
