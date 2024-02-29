@@ -250,7 +250,7 @@ class Game
       input = user_input
       determine_game_course(input)
       clear_screen
-      # break if win? || draw? || end?
+      break if win? || draw? || save_game?(input) || load_game?(input) || declare_resign?(input)
     end
   end
 
@@ -259,10 +259,6 @@ class Game
       process_move(input)
     elsif declare_resign?(input)
       @winner = @round.even? ? 'Black' : 'White'
-      break
-    elsif save_game?(input) || load_game?(input)
-      # save/load game method in main
-      break
     else
       @round.even? ? @white_draw = @round : @black_draw = @round
       @round += 1
@@ -270,7 +266,46 @@ class Game
   end
 
   def draw?
-    (@white_draw - @black_draw).abs == 1
+    (@white_draw - @black_draw).abs == 1 || stalemate? || fifty_move_rule?
+  end
+
+  def stalemate?
+    piece_tally == { 'Bishop' => 1, 'King' => 2 } ||
+      piece_tally == { 'King' => 2, 'Knight' => 1 }
+  end
+
+  def piece_tally
+    pieces = []
+    @board.each do |row|
+      row.each do |element|
+        next if element.nil?
+
+        pieces << element.class.to_s
+      end
+    end
+    pieces.sort.tally
+  end
+
+  def fifty_move_rule?
+    @moves_for_draw == 50
+  end
+
+  def win?
+    kings = []
+    (0..7).each do |row|
+      (0..7).each do |column|
+        next unless @board[row][column].is_a?(King)
+
+        kings << @board[row][column]
+      end
+    end
+
+    if kings.size == 2
+      false
+    else
+      @winner = kings[0].color == 'white' ? 'Black' : 'White'
+      true
+    end
   end
 
   def process_move(input)
@@ -329,8 +364,8 @@ class Game
     puts '   1  2  3  4  5  6  7  8 '
   end
 end
-a = Game.new
-a.play
+# a = Game.new
+# a.play
 # rubocop:enable Layout/LineLength
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/ClassLength
