@@ -1,3 +1,5 @@
+# rubocop:disable Metrics/MethodLength
+# rubocop:disable Style/EachForSimpleLoop
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Layout/LineLength
@@ -11,7 +13,7 @@ require_relative 'queen'
 require_relative 'king'
 # game class
 class Game
-  attr_accessor :board, :pieces
+  attr_accessor :board, :pieces, :last_move
 
   def initialize
     @board = Array.new(8) { Array.new(8) }
@@ -24,7 +26,9 @@ class Game
     # 6 ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
     # 7 ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ']
     @round = 0
-    @previous_turn = 0
+    @last_move = []
+    @whites_taken = Array.new(16)
+    @blacks_taken = Array.new(16)
     populate
   end
 
@@ -62,9 +66,12 @@ class Game
 
     if attempt_castling?(row_old, column_old, row_new, column_new)
       castling_move(row_old, column_old, row_new, column_new)
+    elsif attempt_en_passant?(row_old, column_old, row_new, column_new)
+      en_passant_move(row_old, column_old, row_new, column_new)
     else
       normal_move(row_old, column_old, row_new, column_new)
     end
+    @last_move = [row_new, column_new]
   end
 
   def allowed_move?(row_old, column_old, row_new, column_new)
@@ -73,7 +80,7 @@ class Game
     else
       color = @board[row_old][column_old].color
 
-      @board[row_old][column_old].valid_move?(row_new, column_new, @board) &&
+      @board[row_old][column_old].valid_move?(row_new, column_new, @board, @last_move) &&
         king_safe?(row_old, column_old, row_new, column_new, color)
     end
   end
@@ -105,7 +112,7 @@ class Game
       (0..7).each do |column|
         next if @board[row][column].is_a?(King) || @board[row][column].nil?
 
-        return false if @board[row][column].valid_move?(king.row, king.column, @board)
+        return false if @board[row][column].valid_move?(king.row, king.column, @board, @last_move)
       end
     end
 
@@ -152,12 +159,17 @@ class Game
     @board[row_new][column_new] = piece
   end
 
-  def attempt_en_passant?
-    # PENDING
+  def attempt_en_passant?(row_old, column_old, row_new, column_new)
+    return false unless @board[row_old][column_old].respond_to?(:en_passant?)
+
+    @board[row_old][column_old].en_passant?(row_new, column_new, @board, @last_move)
   end
 
-  def en_passant_move
-    # PENDING
+  def en_passant_move(row_old, column_old, row_new, column_new)
+    direction = column_new > column_old ? 1 : -1
+    @board[row_new][column_new] = @board[row_old][column_old]
+    @board[row_old][column_old + direction] = nil
+    @board[row_old][column_old] = nil
   end
 
   def attempt_castling?(row_old, column_old, row_new, column_new)
@@ -203,3 +215,5 @@ end
 # rubocop:enable Layout/LineLength
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/ClassLength
+# rubocop:enable Style/EachForSimpleLoop
+# rubocop:enable Metrics/MethodLength

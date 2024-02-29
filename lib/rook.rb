@@ -13,7 +13,7 @@ class Rook
     @has_moved = false
   end
 
-  def valid_move?(row, column, board)
+  def valid_move?(row, column, board, _last_move)
     move_in_row?(row, column, board) ||
       move_in_column?(row, column, board)
   end

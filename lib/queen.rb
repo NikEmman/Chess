@@ -13,7 +13,7 @@ class Queen
     @has_moved = false
   end
 
-  def valid_move?(row, column, board)
+  def valid_move?(row, column, board, _last_move)
     valid_destination?(row, column, board) &&
       (valid_diagonal?(row, column, board) ||
       valid_in_row?(row, column, board) ||

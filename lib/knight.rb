@@ -15,7 +15,7 @@ class Knight
     @has_moved = false
   end
 
-  def valid_move?(row, column, board)
+  def valid_move?(row, column, board, _last_move)
     row != @row &&
       @column != column &&
       board[row][column]&.color != @color &&

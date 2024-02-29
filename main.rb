@@ -6,5 +6,6 @@
 # This taking en-passant must be done directly: if the player who could take en-passant does not do this in the first move
 # after the double step, this pawn cannot be taken anymore by an en-passant move.
 
+# test bishop movement
 # create user input method
 # check stalemate / draw / win

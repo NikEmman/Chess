@@ -13,7 +13,7 @@ class King
     @has_moved = false
   end
 
-  def valid_move?(row, column, board)
+  def valid_move?(row, column, board, _last_move)
     move_safe?(row, column, board) && valid?(row, column, board)
   end
 
@@ -37,8 +37,8 @@ class King
   end
 
   def safe_square?(row, column, board)
-    (0..7).each do |i|
-      (0..7).each do |j|
+    8.times do |i|
+      8.times do |j|
         next if board[i][j].nil? || board[i][j].color == @color
         return false if if board[i][j].is_a?(King)
                           king_valid_move?(i, j, row, column, board)
