@@ -1,4 +1,3 @@
-# rubocop:disable Metrics/MethodLength
 # rubocop:disable Style/EachForSimpleLoop
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
@@ -33,28 +32,27 @@ class Game
   end
 
   def populate
-    @board[6].each_index do |index|
-      @board[6][index] = Pawn.new('white', 6, index)
-      @board[1][index] = Pawn.new('black', 1, index)
+    populate_pawns
+    populate_special_pieces
+  end
+
+  def populate_pawns
+    [1, 6].each do |row|
+      color = row == 1 ? 'black' : 'white'
+      @board[row].each_index do |index|
+        @board[row][index] = Pawn.new(color, row, index)
+      end
     end
-    @board[1][2] = Pawn.new('black', 1, 2)
-    @board[7][2] = Pawn.new('black', 7, 2)
-    [0, 7].each do |i|
-      @board[7][i] = Rook.new('white', 7, i)
-      # @board[0][i] = Rook.new('black', 0, i)
+  end
+
+  def populate_special_pieces
+    pieces = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
+    [0, 7].each do |row|
+      color = row.zero? ? 'black' : 'white'
+      pieces.each_with_index do |piece_class, column|
+        @board[row][column] = piece_class.new(color, row, column)
+      end
     end
-    # [1, 6].each do |i|
-    #   @board[7][i] = Knight.new('white', 7, i)
-    #   @board[0][i] = Knight.new('black', 0, i)
-    # end
-    # [2, 5].each do |i|
-    #   @board[7][i] = Bishop.new('white', 7, i)
-    #   @board[0][i] = Bishop.new('black', 0, i)
-    # end
-    #  @board[7][3] = Queen.new('white', 7, 3)
-    @board[0][3] = Queen.new('black', 0, 3)
-    @board[7][4] = King.new('white', 7, 4)
-    @board[0][4] = King.new('black', 0, 4)
   end
 
   def display_piece(piece)
@@ -131,21 +129,6 @@ class Game
     puts "Your pawn got promoted to a Queen (don't expect a pay raise though...)"
   end
 
-  # def normal_move(row_old, column_old, row_new, column_new)
-  #   if @board[row_old][column_old].is_a?(Pawn) && (row_new - row_old).abs == 2
-
-  #     @board[row_old][column_old].en_passant = true
-  #   elsif @board[row_old][column_old].is_a?(Pawn) && (row_new - row_old).abs == 1
-  #     @board[row_old][column_old].en_passant = false
-  #   end
-  #   @board[row_old][column_old].has_moved = true
-  #   temp = @board[row_old][column_old]
-  #   @board[row_old][column_old] = nil
-  #   temp.row = row_new
-  #   temp.column = column_new
-  #   @board[row_new][column_new] = temp
-  # end
-
   def normal_move(row_old, column_old, row_new, column_new)
     piece = @board[row_old][column_old]
 
@@ -193,6 +176,26 @@ class Game
     @board[row_new][column_new] = nil
   end
 
+  def user_input
+    input = 0
+    color = @round.even? ? "Whites'" : "Blacks'"
+    loop do
+      puts "It's #{color} turn, type your move (i.e. a2c2)"
+      input = gets.chomp.downcase
+      break if valid_input?(input)
+    end
+    input
+  end
+
+  def valid_input?(input)
+    input_array = input.chars
+    input_array.size == 4 &&
+      %w[a b c d e f g h].include?(input_array[0]) &&
+      %w[a b c d e f g h].include?(input_array[2]) &&
+      (1..8).include?(input_array[1].to_i) &&
+      (1..8).include?(input_array[3].to_i)
+  end
+
   def display_chessboard
     puts '   1  2  3  4  5  6  7  8 '
     puts "H \e[47m#{display_piece(@board[0][0])}\e[0m\e[100m#{display_piece(@board[0][1])}\e[0m\e[47m#{display_piece(@board[0][2])}\e[0m\e[100m#{display_piece(@board[0][3])}\e[0m\e[47m#{display_piece(@board[0][4])}\e[0m\e[100m#{display_piece(@board[0][5])}\e[0m\e[47m#{display_piece(@board[0][6])}\e[0m\e[100m#{display_piece(@board[0][7])}\e[0m H"
@@ -216,4 +219,3 @@ end
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/ClassLength
 # rubocop:enable Style/EachForSimpleLoop
-# rubocop:enable Metrics/MethodLength
