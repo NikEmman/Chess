@@ -1,4 +1,7 @@
-# announce check, create conditions stalemate / draw / win
 # create save/load game methods
 
-# display pieces taken next to board
+# fix display pieces taken next to board
+
+# fix stalemate / win / draw
+
+# fix add_enemy_piece, for some reason it converts enemy_piece from @board[row_new][column_new] to []

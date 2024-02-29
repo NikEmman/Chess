@@ -10,9 +10,10 @@ require_relative 'knight'
 require_relative 'bishop'
 require_relative 'queen'
 require_relative 'king'
+require 'pry-byebug'
 # game class
 class Game
-  attr_accessor :board, :pieces, :last_move, :input
+  attr_accessor :board, :pieces, :last_move, :input, :game_result, :winner
 
   def initialize
     @board = Array.new(8) { Array.new(8) }
@@ -26,8 +27,8 @@ class Game
     # 7 ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ']
     @round = 0
     @last_move = []
-    @whites_taken = Array.new(16)
-    @blacks_taken = Array.new(16)
+    @whites_taken = []
+    @black_taken = []
     @white_draw = 0
     @black_draw = 0
     @moves_for_draw = 0
@@ -148,15 +149,19 @@ class Game
 
   def normal_move(row_old, column_old, row_new, column_new)
     piece = @board[row_old][column_old]
+    # enemy_piece = @board[row_new][column_new]
 
+    # add_piece_taken(enemy_piece) unless enemy_piece.nil?
     piece.en_passant = (row_new - row_old).abs == 2 if piece.is_a?(Pawn)
-
     piece.has_moved = true
     @board[row_old][column_old] = nil
-
     piece.row = row_new
     piece.column = column_new
     @board[row_new][column_new] = piece
+  end
+
+  def add_piece_taken(piece)
+    piece.color == 'white' ? @whites_taken.push(piece) : @blacks_taken.push(piece)
   end
 
   def attempt_en_passant?(row_old, column_old, row_new, column_new)
@@ -168,6 +173,7 @@ class Game
   def en_passant_move(row_old, column_old, row_new, column_new)
     direction = column_new > column_old ? 1 : -1
     @board[row_new][column_new] = @board[row_old][column_old]
+    add_piece_taken(@board[row_old][column_old + direction])
     @board[row_old][column_old + direction] = nil
     @board[row_old][column_old] = nil
   end
@@ -251,13 +257,14 @@ class Game
       input = user_input
       determine_game_course(input)
       clear_screen
-      break if win? || draw? || save_game?(input) || load_game?(input) || declare_resign?(input)
+      break if  draw? || save_game?(input) || load_game?(input) || declare_resign?(input) # || win?(enemy_king)
     end
-    game_result
+    give_result
   end
 
-  def game_result
-    if win?
+  def give_result
+    if win?(enemy_king)
+      @winner = @round.even? ? 'White' : 'Black'
       @game_result = 'Win'
     elsif draw?
       @game_result = 'Draw'
@@ -276,7 +283,7 @@ class Game
   end
 
   def draw?
-    (@white_draw - @black_draw).abs == 1 || stalemate? || fifty_move_rule? || too_few_pieces?
+    (@white_draw - @black_draw).abs == 1 || fifty_move_rule? || too_few_pieces? # || stalemate?(enemy_king)
   end
 
   def too_few_pieces?
@@ -322,26 +329,12 @@ class Game
     true
   end
 
-  def stalemate?
-    enemy_king_has_no_moves?(enemy_king)
+  def stalemate?(king)
+    enemy_king_has_no_moves?(king) && not_threatens_king?(king)
   end
 
-  def win?
-    kings = []
-    (0..7).each do |row|
-      (0..7).each do |column|
-        next unless @board[row][column].is_a?(King)
-
-        kings << @board[row][column]
-      end
-    end
-
-    if kings.size == 2
-      false
-    else
-      @winner = kings[0].color == 'white' ? 'Black' : 'White'
-      true
-    end
+  def win?(king)
+    enemy_king_has_no_moves?(king) && !not_threatens_king?(king)
   end
 
   def process_move(input)
@@ -388,6 +381,12 @@ class Game
   end
 
   def display_chessboard
+    # puts "Whites taken : #{display_piece(@whites_taken[0])}#{display_piece(@whites_taken[1])}#{display_piece(@whites_taken[2])}#{display_piece(@whites_taken[3])}#{display_piece(@whites_taken[4])}#{display_piece(@whites_taken[5])}#{display_piece(@whites_taken[6])}#{display_piece(@whites_taken[7])}"
+    # puts "               #{display_piece(@whites_taken[8])}#{display_piece(@whites_taken[9])}#{display_piece(@whites_taken[10])}#{display_piece(@whites_taken[11])}#{display_piece(@whites_taken[12])}#{display_piece(@whites_taken[13])}#{display_piece(@whites_taken[14])}#{display_piece(@whites_taken[15])}"
+    # puts
+    # puts "Blacks taken : #{display_piece(@blacks_taken[0])}#{display_piece(@blacks_taken[1])}#{display_piece(@blacks_taken[2])}#{display_piece(@blacks_taken[3])}#{display_piece(@blacks_taken[4])}#{display_piece(@blacks_taken[5])}#{display_piece(@blacks_taken[6])}#{display_piece(@blacks_taken[7])}"
+    # puts "               #{display_piece(@blacks_taken[8])}#{display_piece(@blacks_taken[9])}#{display_piece(@blacks_taken[10])}#{display_piece(@blacks_taken[11])}#{display_piece(@blacks_taken[12])}#{display_piece(@blacks_taken[13])}#{display_piece(@blacks_taken[14])}#{display_piece(@blacks_taken[15])}"
+    # puts
     puts '   1  2  3  4  5  6  7  8 '
     puts "H \e[47m#{display_piece(@board[0][0])}\e[0m\e[100m#{display_piece(@board[0][1])}\e[0m\e[47m#{display_piece(@board[0][2])}\e[0m\e[100m#{display_piece(@board[0][3])}\e[0m\e[47m#{display_piece(@board[0][4])}\e[0m\e[100m#{display_piece(@board[0][5])}\e[0m\e[47m#{display_piece(@board[0][6])}\e[0m\e[100m#{display_piece(@board[0][7])}\e[0m H"
     puts "G \e[100m#{display_piece(@board[1][0])}\e[0m\e[47m#{display_piece(@board[1][1])}\e[0m\e[100m#{display_piece(@board[1][2])}\e[0m\e[47m#{display_piece(@board[1][3])}\e[0m\e[100m#{display_piece(@board[1][4])}\e[0m\e[47m#{display_piece(@board[1][5])}\e[0m\e[100m#{display_piece(@board[1][6])}\e[0m\e[47m#{display_piece(@board[1][7])}\e[0m G"

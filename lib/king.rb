@@ -39,7 +39,7 @@ class King
   end
 
   def safe_square?(row, column, board)
-    last_move = []
+    last_move = [0, 0]
     (0..7).each do |i|
       (0..7).each do |j|
         next if board[i][j].nil? || board[i][j].color == @color
@@ -54,7 +54,7 @@ class King
   end
 
   def king_valid_move?(i, j, row, column, board)
-    board[i][j].valid?(row, column, board) && board[i][j].safe_square?(row, column, board)
+    board[i][j].valid_move?(row, column, board) && board[i][j].safe_square?(row, column, board)
   end
 
   # checks if squares moved through by king when moving or castling are not threatened by enemy pieces
