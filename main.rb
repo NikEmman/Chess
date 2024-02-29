@@ -1,2 +1,3 @@
 # create user input method
-# check stalemate / draw / win
+# announce check, create conditions stalemate / draw / win
+# create save/load game methods

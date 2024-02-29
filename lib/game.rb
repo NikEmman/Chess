@@ -1,3 +1,6 @@
+# rubocop:disable Metrics/CyclomaticComplexity
+# rubocop:disable Metrics/PerceivedComplexity
+# rubocop:disable Metrics/MethodLength
 # rubocop:disable Style/EachForSimpleLoop
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
@@ -28,6 +31,9 @@ class Game
     @last_move = []
     @whites_taken = Array.new(16)
     @blacks_taken = Array.new(16)
+    @white_draw = nil
+    @black_draw = nil
+    @moves_for_draw = 0
     populate
   end
 
@@ -62,6 +68,8 @@ class Game
   def move(row_old, column_old, row_new, column_new)
     return 'Invalid move, try again' unless allowed_move?(row_old, column_old, row_new, column_new)
 
+    update_moves_for_draw(row_old, column_old, row_new, column_new)
+
     if attempt_castling?(row_old, column_old, row_new, column_new)
       castling_move(row_old, column_old, row_new, column_new)
     elsif attempt_en_passant?(row_old, column_old, row_new, column_new)
@@ -70,6 +78,18 @@ class Game
       normal_move(row_old, column_old, row_new, column_new)
     end
     @last_move = [row_new, column_new]
+  end
+
+  def update_moves_for_draw(row_old, column_old, row_new, column_new)
+    if !@board[row_old][column_old].is_a?(Pawn) && destination_empty_or_not_castling?(row_old, column_old, row_new, column_new)
+      @moves_for_draw += 1
+    else
+      @moves_for_draw = 0
+    end
+  end
+
+  def destination_empty_or_not_castling?(row_old, column_old, row_new, column_new)
+    @board[row_new][column_new].nil? || !attempt_castling?(row_old, column_old, row_new, column_new)
   end
 
   def allowed_move?(row_old, column_old, row_new, column_new)
@@ -101,7 +121,7 @@ class Game
     result = not_threatens_king?(king_pieces)
 
     normal_move(row_new, column_new, row_old, column_old)
-    @board[row_new, column_new] = temp
+    @board[row_new][column_new] = temp
     result
   end
 
@@ -188,12 +208,94 @@ class Game
   end
 
   def valid_input?(input)
+    request_draw?(input) ||
+      declare_resign?(input) ||
+      valid_move?(input) ||
+      save_game?(input) ||
+      load_game?(input)
+  end
+
+  def request_draw?(input)
+    input == 'draw'
+  end
+
+  def declare_resign?(input)
+    input == 'resign'
+  end
+
+  def save_game?(input)
+    input == 'save'
+  end
+
+  def load_game?(input)
+    input == 'load'
+  end
+
+  def valid_move?(input)
     input_array = input.chars
     input_array.size == 4 &&
       %w[a b c d e f g h].include?(input_array[0]) &&
       %w[a b c d e f g h].include?(input_array[2]) &&
       (1..8).include?(input_array[1].to_i) &&
       (1..8).include?(input_array[3].to_i)
+  end
+
+  def play
+    greetings
+    loop do
+      display_chessboard
+      input = user_input
+      if valid_move?(input)
+        move = input.chars
+        move(row(move, 0), column(move, 1), row(move, 2), column(move, 3))
+        @round += 1
+      elsif request_draw?(input)
+        @round.even? ? @white_draw = @round : @black_draw = @round
+        @round += 1
+      else
+        @winner = @round.even? ? 'Black' : 'White'
+
+      end
+      clear_screen
+      break if win? || draw? || end?
+    end
+  end
+
+  def clear_screen
+    system('clear') || system('cls')
+  end
+
+  def row(input, index)
+    'hgfedcba'.index(input[index])
+  end
+
+  def column(input, index)
+    input[index].to_i + 1
+  end
+
+  def greetings
+    puts '                                              WELCOME!                      '
+    puts
+    display_chessboard
+    puts
+    puts "This is a console Chess game! Choose your piece and its move by typing the piece's square and the destination square"
+    puts 'In example --- b1d1 --- to move the white pawn two rows up.'
+    puts
+    puts 'If you want to perform castling, use the King as the starting square and Rook as destination'
+    puts 'In example --- a4a1 ---'
+    puts
+    puts 'Whites always start first'
+    puts
+    puts "If you want to admit defeat, type 'resign'."
+    puts
+    puts "If you want to propose a draw,type 'draw'. If next turn, the opponent also types 'draw', the game ends"
+    puts
+    puts "At any time, type 'save' to save the game, or 'load' to load a saved game"
+    puts
+    puts 'For Chess rules explanation check the link in README file'
+    puts
+    puts 'To begin the game press [ENTER]'
+    gets
   end
 
   def display_chessboard
@@ -210,7 +312,6 @@ class Game
   end
 end
 # a = Game.new
-# a.populate
 # a.display_chessboard
 # a.move(6, 1, 4, 1)
 # a.display_chessboard
@@ -219,3 +320,6 @@ end
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/ClassLength
 # rubocop:enable Style/EachForSimpleLoop
+# rubocop:enable Metrics/MethodLength
+# rubocop:enable Metrics/PerceivedComplexity
+# rubocop:enable Metrics/CyclomaticComplexity
