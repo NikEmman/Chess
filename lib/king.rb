@@ -1,3 +1,5 @@
+# rubocop:disable Metrics/MethodLength
+# rubocop:disable Metrics/AbcSize
 # frozen_string_literal: true
 
 # rook class
@@ -37,8 +39,8 @@ class King
   end
 
   def safe_square?(row, column, board)
-    8.times do |i|
-      8.times do |j|
+    (0..7).each do |i|
+      (0..7).each do |j|
         next if board[i][j].nil? || board[i][j].color == @color
         return false if if board[i][j].is_a?(King)
                           king_valid_move?(i, j, row, column, board)
@@ -80,10 +82,11 @@ class King
   end
 
   def castling?(row, column, board)
-    board[@row][@column].color == board[row][column]&.color &&
-      board[row][column]&.has_moved == false &&
+    board[@row][@column].color == board[row][column].color &&
+      board[row][column].has_moved == false &&
       @has_moved == false &&
-      board[row][column].instance_of?(Rook) &&
+      board[row][column].is_a?(Rook) &&
+      safe_square?(@row, @column, board) &&
       clear_between_row?(column, board)
   end
 
@@ -92,3 +95,5 @@ class King
     (min_column + 1...max_column).all? { |i| board[@row][i].nil? }
   end
 end
+# rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/MethodLength

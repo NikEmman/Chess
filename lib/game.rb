@@ -1,7 +1,4 @@
-# rubocop:disable Metrics/CyclomaticComplexity
-# rubocop:disable Metrics/PerceivedComplexity
 # rubocop:disable Metrics/MethodLength
-# rubocop:disable Style/EachForSimpleLoop
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Layout/LineLength
@@ -15,7 +12,7 @@ require_relative 'queen'
 require_relative 'king'
 # game class
 class Game
-  attr_accessor :board, :pieces, :last_move
+  attr_accessor :board, :pieces, :last_move, :input
 
   def initialize
     @board = Array.new(8) { Array.new(8) }
@@ -34,6 +31,7 @@ class Game
     @white_draw = nil
     @black_draw = nil
     @moves_for_draw = 0
+    @input = ''
     populate
   end
 
@@ -66,8 +64,6 @@ class Game
   end
 
   def move(row_old, column_old, row_new, column_new)
-    return 'Invalid move, try again' unless allowed_move?(row_old, column_old, row_new, column_new)
-
     update_moves_for_draw(row_old, column_old, row_new, column_new)
 
     if attempt_castling?(row_old, column_old, row_new, column_new)
@@ -197,20 +193,27 @@ class Game
   end
 
   def user_input
-    input = 0
+    input = nil
     color = @round.even? ? "Whites'" : "Blacks'"
     loop do
-      puts "It's #{color} turn, type your move (i.e. a2c2)"
+      puts "It's #{color} turn, type your move :"
       input = gets.chomp.downcase
-      break if valid_input?(input)
+      break if valid_move_input?(input) &&
+               (valid_input?(input) || allowed_move?(row(input, 0), column(input, 1), row(input, 2), column(input, 3)))
+
+      if valid_input?(input)
+        puts 'Invalid input, type a move (ie a1b2), draw, resign, save, load'
+      else
+        puts 'Invalid move, try again'
+      end
     end
+    @input = input
     input
   end
 
   def valid_input?(input)
     request_draw?(input) ||
       declare_resign?(input) ||
-      valid_move?(input) ||
       save_game?(input) ||
       load_game?(input)
   end
@@ -231,34 +234,49 @@ class Game
     input == 'load'
   end
 
-  def valid_move?(input)
-    input_array = input.chars
-    input_array.size == 4 &&
-      %w[a b c d e f g h].include?(input_array[0]) &&
-      %w[a b c d e f g h].include?(input_array[2]) &&
-      (1..8).include?(input_array[1].to_i) &&
-      (1..8).include?(input_array[3].to_i)
+  def valid_move_input?(input)
+    input.size == 4 &&
+      %w[a b c d e f g h].include?(input[0]) &&
+      %w[a b c d e f g h].include?(input[2]) &&
+      (1..8).include?(input[1].to_i) &&
+      (1..8).include?(input[3].to_i)
   end
 
   def play
     greetings
+    clear_screen
     loop do
       display_chessboard
       input = user_input
-      if valid_move?(input)
-        move = input.chars
-        move(row(move, 0), column(move, 1), row(move, 2), column(move, 3))
-        @round += 1
-      elsif request_draw?(input)
-        @round.even? ? @white_draw = @round : @black_draw = @round
-        @round += 1
-      else
-        @winner = @round.even? ? 'Black' : 'White'
-
-      end
+      determine_game_course(input)
       clear_screen
-      break if win? || draw? || end?
+      # break if win? || draw? || end?
     end
+  end
+
+  def determine_game_course(input)
+    if valid_move_input?(input)
+      process_move(input)
+    elsif declare_resign?(input)
+      @winner = @round.even? ? 'Black' : 'White'
+      break
+    elsif save_game?(input) || load_game?(input)
+      # save/load game method in main
+      break
+    else
+      @round.even? ? @white_draw = @round : @black_draw = @round
+      @round += 1
+    end
+  end
+
+  def draw?
+    (@white_draw - @black_draw).abs == 1
+  end
+
+  def process_move(input)
+    move(row(input, 0), column(input, 1), row(input, 2), column(input, 3))
+    promote_pawn(@last_move[0], @last_move[1]) if time_for_promotion?(@last_move[0], @last_move[1])
+    @round += 1
   end
 
   def clear_screen
@@ -270,7 +288,7 @@ class Game
   end
 
   def column(input, index)
-    input[index].to_i + 1
+    input[index].to_i - 1
   end
 
   def greetings
@@ -311,15 +329,9 @@ class Game
     puts '   1  2  3  4  5  6  7  8 '
   end
 end
-# a = Game.new
-# a.display_chessboard
-# a.move(6, 1, 4, 1)
-# a.display_chessboard
-# gets
+a = Game.new
+a.play
 # rubocop:enable Layout/LineLength
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/ClassLength
-# rubocop:enable Style/EachForSimpleLoop
 # rubocop:enable Metrics/MethodLength
-# rubocop:enable Metrics/PerceivedComplexity
-# rubocop:enable Metrics/CyclomaticComplexity
