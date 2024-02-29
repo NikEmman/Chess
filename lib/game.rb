@@ -28,10 +28,11 @@ class Game
     @last_move = []
     @whites_taken = Array.new(16)
     @blacks_taken = Array.new(16)
-    @white_draw = nil
-    @black_draw = nil
+    @white_draw = 0
+    @black_draw = 0
     @moves_for_draw = 0
     @input = ''
+    @game_result = nil
     populate
   end
 
@@ -252,6 +253,15 @@ class Game
       clear_screen
       break if win? || draw? || save_game?(input) || load_game?(input) || declare_resign?(input)
     end
+    game_result
+  end
+
+  def game_result
+    if win?
+      @game_result = 'Win'
+    elsif draw?
+      @game_result = 'Draw'
+    end
   end
 
   def determine_game_course(input)
@@ -266,10 +276,10 @@ class Game
   end
 
   def draw?
-    (@white_draw - @black_draw).abs == 1 || stalemate? || fifty_move_rule?
+    (@white_draw - @black_draw).abs == 1 || stalemate? || fifty_move_rule? || too_few_pieces?
   end
 
-  def stalemate?
+  def too_few_pieces?
     piece_tally == { 'Bishop' => 1, 'King' => 2 } ||
       piece_tally == { 'King' => 2, 'Knight' => 1 }
   end
@@ -288,6 +298,32 @@ class Game
 
   def fifty_move_rule?
     @moves_for_draw == 50
+  end
+
+  def enemy_king
+    color = @round.even? ? 'black' : 'white'
+    king = nil
+    (0..7).each do |row|
+      (0..7).each do |column|
+        next unless @board[row][column].is_a?(King) && @board[row][column].color == color
+
+        king = @board[row][column]
+      end
+    end
+    king
+  end
+
+  def enemy_king_has_no_moves?(king)
+    moves = [[king.row + 1, king.column], [king.row + 1, king.column + 1], [king.row, king.column + 1], [king.row - 1, king.column + 1],
+             [king.row - 1, king.column], [king.row - 1, king.column - 1], [king.row, king.column + 1], [king.row + 1, king.column - 1]]
+    moves.each do |move|
+      return false if king.valid_move?(move[0], move[1], @board, @last_move)
+    end
+    true
+  end
+
+  def stalemate?
+    enemy_king_has_no_moves?(enemy_king)
   end
 
   def win?
@@ -327,7 +363,7 @@ class Game
   end
 
   def greetings
-    puts '                                              WELCOME!                      '
+    puts '                                                  WELCOME!                      '
     puts
     display_chessboard
     puts
@@ -341,7 +377,7 @@ class Game
     puts
     puts "If you want to admit defeat, type 'resign'."
     puts
-    puts "If you want to propose a draw,type 'draw'. If next turn, the opponent also types 'draw', the game ends"
+    puts "If you want to propose a draw, type 'draw'. If next turn, the opponent also types 'draw', the game ends"
     puts
     puts "At any time, type 'save' to save the game, or 'load' to load a saved game"
     puts

@@ -20,10 +20,10 @@ class King
   end
 
   def valid?(row, column, board)
-    castling?(row, column, board) ||
-      valid_diagonal?(row, column, board) ||
+    valid_diagonal?(row, column, board) ||
       valid_in_row?(row, column, board) ||
-      valid_in_column?(row, column, board)
+      valid_in_column?(row, column, board) ||
+      castling?(row, column, board)
   end
 
   def valid_diagonal?(row, column, board)
@@ -39,13 +39,14 @@ class King
   end
 
   def safe_square?(row, column, board)
+    last_move = []
     (0..7).each do |i|
       (0..7).each do |j|
         next if board[i][j].nil? || board[i][j].color == @color
         return false if if board[i][j].is_a?(King)
                           king_valid_move?(i, j, row, column, board)
                         else
-                          board[i][j].valid_move?(row, column, board)
+                          board[i][j].valid_move?(row, column, board, last_move)
                         end
       end
     end
@@ -82,12 +83,12 @@ class King
   end
 
   def castling?(row, column, board)
-    board[@row][@column].color == board[row][column].color &&
+    board[row][column].is_a?(Rook) &&
       board[row][column].has_moved == false &&
       @has_moved == false &&
-      board[row][column].is_a?(Rook) &&
       safe_square?(@row, @column, board) &&
-      clear_between_row?(column, board)
+      clear_between_row?(column, board) &&
+      board[@row][@column].color == board[row][column].color
   end
 
   def clear_between_row?(column, board)
