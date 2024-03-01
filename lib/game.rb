@@ -1,3 +1,4 @@
+# rubocop:disable Style/EachForSimpleLoop
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
@@ -201,17 +202,16 @@ class Game
 
   def user_input
     input = nil
-    color = @round.even? ? "Whites'" : "Blacks'"
+    color = @round.even? ? "White's" : "Black's"
     loop do
       puts "It's #{color} turn, type your move :"
       input = gets.chomp.downcase
-      break if valid_move_input?(input) &&
-               (valid_input?(input) || allowed_move?(row(input, 0), column(input, 1), row(input, 2), column(input, 3)))
-
-      if valid_input?(input)
+      if !valid_input?(input)
         puts 'Invalid input, type a move (ie a1b2), draw, resign, save, load'
-      else
+      elsif valid_move_input?(input) && !allowed_move?(row(input, 0), column(input, 1), row(input, 2), column(input, 3))
         puts 'Invalid move, try again'
+      else
+        break
       end
     end
     @input = input
@@ -219,6 +219,10 @@ class Game
   end
 
   def valid_input?(input)
+    valid_move_input?(input) || valid_action_input?(input)
+  end
+
+  def valid_action_input?(input)
     request_draw?(input) ||
       declare_resign?(input) ||
       save_game?(input) ||
@@ -254,10 +258,10 @@ class Game
     clear_screen
     loop do
       display_chessboard
-      input = user_input
-      determine_game_course(input)
+      user_input
+      determine_game_course(@input)
       clear_screen
-      break if  draw? || save_game?(input) || load_game?(input) || declare_resign?(input) # || win?(enemy_king)
+      break if  draw? || save_game?(@input) || load_game?(@input) || declare_resign?(@input) || win?(enemy_king)
     end
     give_result
   end
@@ -268,22 +272,23 @@ class Game
       @game_result = 'Win'
     elsif draw?
       @game_result = 'Draw'
+    elsif resign?(@input)
+      @winner = @round.even? ? 'Black' : 'White'
+      @game_result = 'Win'
     end
   end
 
   def determine_game_course(input)
     if valid_move_input?(input)
       process_move(input)
-    elsif declare_resign?(input)
-      @winner = @round.even? ? 'Black' : 'White'
-    else
+    elsif request_draw?(@input)
       @round.even? ? @white_draw = @round : @black_draw = @round
       @round += 1
     end
   end
 
   def draw?
-    (@white_draw - @black_draw).abs == 1 || fifty_move_rule? || too_few_pieces? # || stalemate?(enemy_king)
+    (@white_draw - @black_draw).abs == 1 || fifty_move_rule? || too_few_pieces? || stalemate?
   end
 
   def too_few_pieces?
@@ -324,13 +329,33 @@ class Game
     moves = [[king.row + 1, king.column], [king.row + 1, king.column + 1], [king.row, king.column + 1], [king.row - 1, king.column + 1],
              [king.row - 1, king.column], [king.row - 1, king.column - 1], [king.row, king.column + 1], [king.row + 1, king.column - 1]]
     moves.each do |move|
+      next unless (0..7).include?(move[0]) && (0..7).include?(move[1])
       return false if king.valid_move?(move[0], move[1], @board, @last_move)
     end
     true
   end
 
-  def stalemate?(king)
-    enemy_king_has_no_moves?(king) && not_threatens_king?(king)
+  def stalemate?
+    color = @round.even? ? 'white' : 'black'
+
+    @board.each do |row|
+      row.each do |piece|
+        next if piece.nil? || piece.color == color
+
+        return false if any_valid_moves?(piece)
+      end
+    end
+
+    true
+  end
+
+  def any_valid_moves?(piece)
+    (0..7).each do |row|
+      (0..7).each do |column|
+        return true if piece.valid_move?(row, column, @board)
+      end
+    end
+    false
   end
 
   def win?(king)
@@ -405,3 +430,4 @@ end
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/ClassLength
 # rubocop:enable Metrics/MethodLength
+# rubocop:enable Style/EachForSimpleLoop

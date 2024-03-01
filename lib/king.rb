@@ -1,5 +1,4 @@
-# rubocop:disable Metrics/MethodLength
-# rubocop:disable Metrics/AbcSize
+# rubocop:disable Style/EachForSimpleLoop
 # frozen_string_literal: true
 
 # rook class
@@ -15,8 +14,8 @@ class King
     @has_moved = false
   end
 
-  def valid_move?(row, column, board, _last_move)
-    move_safe?(row, column, board) && valid?(row, column, board)
+  def valid_move?(row, column, board, _last_move = [0, 0])
+    safe_square?(row, column, board) && valid?(row, column, board)
   end
 
   def valid?(row, column, board)
@@ -39,25 +38,24 @@ class King
   end
 
   def safe_square?(row, column, board)
-    last_move = [0, 0]
     (0..7).each do |i|
       (0..7).each do |j|
         next if board[i][j].nil? || board[i][j].color == @color
-        return false if if board[i][j].is_a?(King)
-                          king_valid_move?(i, j, row, column, board)
-                        else
-                          board[i][j].valid_move?(row, column, board, last_move)
-                        end
+        return false if can_reach?(board[i][j], row, column, board)
       end
     end
     true
   end
 
-  def king_valid_move?(i, j, row, column, board)
-    board[i][j].valid_move?(row, column, board) && board[i][j].safe_square?(row, column, board)
+  def can_reach?(piece, row, column, board)
+    if piece.is_a?(King)
+      piece.valid?(row, column, board)
+    else
+      piece.valid_move?(row, column, board)
+    end
   end
 
-  # checks if squares moved through by king when moving or castling are not threatened by enemy pieces
+  # checks if squares moved through by king when castling are not threatened by enemy pieces
   def squares_passed_safe?(column, board)
     range = column > @column ? (@column + 1...column) : (column + 1...@column)
 
@@ -66,14 +64,6 @@ class King
     end
 
     true
-  end
-
-  def move_safe?(row, column, board)
-    if (@column - column).abs > 1
-      squares_passed_safe?(column, board)
-    else
-      safe_square?(row, column, board)
-    end
   end
 
   def valid_in_column?(row, column, board)
@@ -86,6 +76,7 @@ class King
     board[row][column].is_a?(Rook) &&
       board[row][column].has_moved == false &&
       @has_moved == false &&
+      squares_passed_safe?(column, board) &&
       safe_square?(@row, @column, board) &&
       clear_between_row?(column, board) &&
       board[@row][@column].color == board[row][column].color
@@ -96,5 +87,4 @@ class King
     (min_column + 1...max_column).all? { |i| board[@row][i].nil? }
   end
 end
-# rubocop:enable Metrics/AbcSize
-# rubocop:enable Metrics/MethodLength
+# rubocop:enable Style/EachForSimpleLoop

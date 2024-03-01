@@ -15,7 +15,7 @@ class Pawn
     @en_passant = false
   end
 
-  def valid_move?(row, column, board, last_move)
+  def valid_move?(row, column, board, last_move = [0, 0])
     en_passant?(row, column, board, last_move) ||
       move_one?(row, column, board) ||
       move_two?(row, column, board) ||
