@@ -1,4 +1,3 @@
-# rubocop:disable Style/EachForSimpleLoop
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
@@ -94,11 +93,11 @@ class Game
       color = @board[row_old][column_old].color
 
       @board[row_old][column_old].valid_move?(row_new, column_new, @board, @last_move) &&
-        king_safe?(row_old, column_old, row_new, column_new, color)
+        king_safe?(color)
     end
   end
 
-  def king_safe?(row_old, column_old, row_new, column_new, color)
+  def king_safe?(color)
     king = nil
 
     (0..7).each do |row|
@@ -106,18 +105,7 @@ class Game
         king = @board[row][column] if @board[row][column].is_a?(King) && @board[row][column].color == color
       end
     end
-
-    test_move(row_old, column_old, row_new, column_new, king)
-  end
-
-  def test_move(row_old, column_old, row_new, column_new, king_pieces)
-    temp = @board[row_new, column_new]
-    normal_move(row_old, column_old, row_new, column_new)
-    result = not_threatens_king?(king_pieces)
-
-    normal_move(row_new, column_new, row_old, column_old)
-    @board[row_new][column_new] = temp
-    result
+    not_threatens_king?(king)
   end
 
   def not_threatens_king?(king)
@@ -132,7 +120,6 @@ class Game
     true
   end
 
-  # use that after the move
   def time_for_promotion?(row, column)
     @board[row][column].is_a?(Pawn) && [7, 0].include?(row)
   end
@@ -146,9 +133,8 @@ class Game
 
   def normal_move(row_old, column_old, row_new, column_new)
     piece = @board[row_old][column_old]
-    enemy_piece = @board[row_new][column_new]
-    unless enemy_piece.nil?
-      enemy_piece.color == 'white' ? @whites_taken.push(enemy_piece) : @blacks_taken.push(enemy_piece)
+    unless @board[row_new][column_new].nil?
+      @board[row_new][column_new].color == 'white' ? @whites_taken.push(@board[row_new][column_new]) : @blacks_taken.push(@board[row_new][column_new])
     end
     piece.en_passant = (row_new - row_old).abs == 2 if piece.is_a?(Pawn)
     piece.has_moved = true
@@ -166,9 +152,8 @@ class Game
 
   def en_passant_move(row_old, column_old, row_new, column_new)
     direction = column_new > column_old ? 1 : -1
-    enemy_piece = @board[row_old][column_old + direction]
     @board[row_new][column_new] = @board[row_old][column_old]
-    enemy_piece.color == 'white' ? @whites_taken.push(enemy_piece) : @blacks_taken.push(enemy_piece)
+    @board[row_old][column_old + direction].color == 'white' ? @whites_taken.push(@board[row_old][column_old + direction]) : @blacks_taken.push(@board[row_old][column_old + direction])
     @board[row_old][column_old + direction] = nil
     @board[row_old][column_old] = nil
   end
@@ -208,6 +193,7 @@ class Game
         break
       end
     end
+
     @input = input
     input
   end
@@ -266,13 +252,15 @@ class Game
       @game_result = 'Win'
     elsif draw?
       @game_result = 'Draw'
-    elsif resign?(@input)
+    elsif declare_resign?(@input)
       @winner = @round.even? ? 'Black' : 'White'
       @game_result = 'Win'
     end
   end
 
   def determine_game_course(input)
+    return if save_game?(@input) || load_game?(@game)
+
     if valid_move_input?(input)
       process_move(input)
     elsif request_draw?(@input)
@@ -412,6 +400,7 @@ class Game
   def display_chessboard
     puts 'Whites taken :'
     display_taken(@whites_taken)
+    puts
     puts 'Blacks taken :'
     display_taken(@blacks_taken)
     puts
@@ -434,4 +423,3 @@ end
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/ClassLength
 # rubocop:enable Metrics/MethodLength
-# rubocop:enable Style/EachForSimpleLoop
