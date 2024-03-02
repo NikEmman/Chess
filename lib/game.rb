@@ -1,3 +1,4 @@
+# rubocop:disable Style/EachForSimpleLoop
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
@@ -97,6 +98,17 @@ class Game
     end
   end
 
+  def check_for_king_check
+    color = @round.even? ? 'white' : 'black'
+    puts "Attention, #{color} King is in check!" unless king_safe?(color)
+  end
+
+  def announce_check_mate
+    color = @round.even? ? 'Black' : 'White'
+    puts "Check mate!  #{color} King is down!! #{color} lost. Press [Enter] to continue." if win?(enemy_king)
+    gets
+  end
+
   def king_safe?(color)
     king = nil
 
@@ -113,7 +125,7 @@ class Game
       (0..7).each do |column|
         next if @board[row][column].is_a?(King) || @board[row][column].nil?
 
-        return false if @board[row][column].valid_move?(king.row, king.column, @board, @last_move)
+        return false if @board[row][column].valid_move?(king.row, king.column, @board)
       end
     end
 
@@ -238,6 +250,7 @@ class Game
     clear_screen
     loop do
       display_chessboard
+      check_for_king_check
       user_input
       determine_game_course(@input)
       clear_screen
@@ -423,3 +436,4 @@ end
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/ClassLength
 # rubocop:enable Metrics/MethodLength
+# rubocop:enable Style/EachForSimpleLoop
