@@ -62,13 +62,7 @@ board:
     sprite: " ♟ "
     has_moved: false
     en_passant: false
-  - !ruby/object:Pawn
-    color: black
-    row: 1
-    column: 2
-    sprite: " ♟ "
-    has_moved: false
-    en_passant: false
+  - 
   - !ruby/object:Pawn
     color: black
     row: 1
@@ -114,23 +108,13 @@ board:
   - 
 - - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-- - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-- - 
-  - 
-  - 
+  - !ruby/object:Pawn
+    color: black
+    row: 3
+    column: 2
+    sprite: " ♟ "
+    has_moved: true
+    en_passant: true
   - 
   - 
   - 
@@ -138,11 +122,27 @@ board:
   - 
 - - !ruby/object:Pawn
     color: white
-    row: 6
+    row: 4
     column: 0
     sprite: " ♙ "
-    has_moved: false
-    en_passant: false
+    has_moved: true
+    en_passant: true
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- - 
   - !ruby/object:Pawn
     color: white
     row: 6
@@ -240,8 +240,10 @@ board:
     column: 7
     sprite: " ♖ "
     has_moved: false
-round: 0
-last_move: []
+round: 2
+last_move:
+- 3
+- 2
 whites_taken: []
 blacks_taken: []
 white_draw: 0

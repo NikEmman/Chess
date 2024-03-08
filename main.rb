@@ -15,14 +15,25 @@ class Main
   end
 
   def play
-    @game.play
-    if @game.input == 'save'
-      game_save
-    elsif @game.input == 'load'
-      @game = game_load
+    loop do
       @game.play
+      if @game.input == 'save'
+        game_save
+      elsif @game.input == 'load'
+        @game = game_load
+      end
+      announce_game_result(@game)
+      check_restart(@game)
+      break if @game.input == 'save' || %w[Win Draw].include?(@game.game_result)
     end
-    check_restart(@game.input)
+  end
+
+  def announce_game_result(game)
+    if game.game_result == 'Win'
+      puts "It is a win for #{game.winner}!!!"
+    elsif game.game_result == 'Draw'
+      puts "What a game! It's a draw!!"
+    end
   end
 
   def game_save
@@ -30,17 +41,16 @@ class Main
   end
 
   def game_load
-    YAML.load_file('save00.yml', permitted_classes: [Game])
+    YAML.load_file('save00.yml', permitted_classes: [Game, Rook, Pawn, Queen, Bishop, King, Knight])
   end
 
-  def check_restart(input)
-    return unless %w[resign draw].include?(input) || @game.valid_action_input?(input)
+  def check_restart(game)
+    return unless %w[resign draw].include?(game.input) || %w[Win,Draw].include?(game.game_result)
 
     puts 'Do you want to play again? [Y/N] :'
     answer = gets.chomp.downcase
     return unless answer == 'y'
 
     @game = Game.new
-    @game.play
   end
 end
