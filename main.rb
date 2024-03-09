@@ -2,12 +2,12 @@
 # frozen_string_literal: true
 
 require_relative './lib/game'
+require 'tty-prompt'
 require 'pry-byebug'
 
 # create save/load game methods
 
 # fix display pieces taken next to board
-
 # main class
 class Main
   attr_accessor :game
@@ -54,23 +54,29 @@ class Main
   # end
 
   def load_game
+    prompt = TTY::Prompt.new
+
     Dir.mkdir('saved_games') unless File.exist?('saved_games')
     saved_games = Dir.glob('saved_games/*.yml')
 
-    puts 'Saved games:'
-    saved_games.each do |filename|
-      puts filename
-    end
+    save_to_load = prompt.select('Choose your destiny?', saved_games)
 
-    print 'Enter the name of the save to load: '
-    save_to_load = gets.chomp
+    @game = YAML.load_file(save_to_load, permitted_classes: [Game, Rook, Pawn, Queen, Bishop, King, Knight])
 
-    if saved_games.include?(save_to_load)
-      # @game = YAML.load(File.read(save_to_load))
-      @game = YAML.load_file(save_to_load, permitted_classes: [Game, Rook, Pawn, Queen, Bishop, King, Knight])
-    else
-      puts 'No save found with that name.'
-    end
+    # puts 'Saved games:'
+    # saved_games.each do |filename|
+    #   puts filename
+    # end
+
+    # print 'Enter the name of the save to load: '
+    # save_to_load = gets.chomp
+
+    # if saved_games.include?(save_to_load)
+    #   # @game = YAML.load(File.read(save_to_load))
+    #   @game = YAML.load_file(save_to_load, permitted_classes: [Game, Rook, Pawn, Queen, Bishop, King, Knight])
+    # else
+    #   puts 'No save found with that name.'
+    # end
   end
 
   def check_restart(game)
