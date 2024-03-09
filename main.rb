@@ -25,6 +25,7 @@ class Main
         load_game
       end
       announce_game_result(@game)
+      # rework restart in break line
       check_restart(@game)
       break if @game.input == 'exit' || %w[Win Draw].include?(@game.game_result)
     end
@@ -49,10 +50,6 @@ class Main
     gets.chomp
   end
 
-  # def game_load
-  #   YAML.load_file('save00.yml', permitted_classes: [Game, Rook, Pawn, Queen, Bishop, King, Knight])
-  # end
-
   def load_game
     prompt = TTY::Prompt.new
 
@@ -62,21 +59,6 @@ class Main
     save_to_load = prompt.select('Choose your destiny?', saved_games)
 
     @game = YAML.load_file(save_to_load, permitted_classes: [Game, Rook, Pawn, Queen, Bishop, King, Knight])
-
-    # puts 'Saved games:'
-    # saved_games.each do |filename|
-    #   puts filename
-    # end
-
-    # print 'Enter the name of the save to load: '
-    # save_to_load = gets.chomp
-
-    # if saved_games.include?(save_to_load)
-    #   # @game = YAML.load(File.read(save_to_load))
-    #   @game = YAML.load_file(save_to_load, permitted_classes: [Game, Rook, Pawn, Queen, Bishop, King, Knight])
-    # else
-    #   puts 'No save found with that name.'
-    # end
   end
 
   def check_restart(game)

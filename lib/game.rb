@@ -247,7 +247,7 @@ class Game
   end
 
   def play
-    greetings unless @input == 'save'
+    intro unless @input == 'save'
     clear_screen
     loop do
       display_chessboard
@@ -390,9 +390,31 @@ class Game
     input[index].to_i - 1
   end
 
+  def welcome
+    clear_screen
+    puts '
+
+    ██╗    ██╗███████╗██╗      ██████╗ ██████╗ ███╗   ███╗███████╗    ████████╗ ██████╗      ██████╗██╗  ██╗███████╗███████╗███████╗    ██╗██╗██╗
+    ██║    ██║██╔════╝██║     ██╔════╝██╔═══██╗████╗ ████║██╔════╝    ╚══██╔══╝██╔═══██╗    ██╔════╝██║  ██║██╔════╝██╔════╝██╔════╝    ██║██║██║
+    ██║ █╗ ██║█████╗  ██║     ██║     ██║   ██║██╔████╔██║█████╗         ██║   ██║   ██║    ██║     ███████║█████╗  ███████╗███████╗    ██║██║██║
+    ██║███╗██║██╔══╝  ██║     ██║     ██║   ██║██║╚██╔╝██║██╔══╝         ██║   ██║   ██║    ██║     ██╔══██║██╔══╝  ╚════██║╚════██║    ╚═╝╚═╝╚═╝
+    ╚███╔███╔╝███████╗███████╗╚██████╗╚██████╔╝██║ ╚═╝ ██║███████╗       ██║   ╚██████╔╝    ╚██████╗██║  ██║███████╗███████║███████║    ██╗██╗██╗
+     ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝       ╚═╝    ╚═════╝      ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝    ╚═╝╚═╝╚═╝
+
+
+    '
+    20.times { puts }
+    puts '                                                                      [ENTER]'
+    gets
+  end
+
+  def intro
+    welcome
+    greetings
+  end
+
   def greetings
-    puts '                                                  WELCOME!                      '
-    puts
+    clear_screen
     display_chessboard
     puts
     puts "This is a console Chess game! Choose your piece and its move by typing the piece's square and the destination square"
