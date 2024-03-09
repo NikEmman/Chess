@@ -10,6 +10,7 @@ require_relative 'knight'
 require_relative 'bishop'
 require_relative 'queen'
 require_relative 'king'
+require_relative 'color'
 require 'pry-byebug'
 # game class
 class Game
@@ -395,18 +396,18 @@ class Game
     display_chessboard
     puts
     puts "This is a console Chess game! Choose your piece and its move by typing the piece's square and the destination square"
-    puts 'In example --- b1d1 --- to move the white pawn two rows up.'
+    puts "In example --- #{Color.new.red('b1d1')} --- to move the white pawn two rows up."
     puts
     puts 'If you want to perform castling, use the King as the starting square and Rook as destination'
-    puts 'In example --- a4a1 ---'
+    puts "In example --- #{Color.new.red('a4a1')} ---"
     puts
     puts 'Whites always start first'
     puts
-    puts "If you want to admit defeat, type 'resign'."
+    puts "If you want to admit #{Color.new.red('DEFEAT')}, type 'resign'."
     puts
-    puts "If you want to propose a draw, type 'draw'. If next turn, the opponent also types 'draw', the game ends"
+    puts "If you want to propose a #{Color.new.brown('DRAW')}, type 'draw'. If next turn, the opponent also types 'draw', the game ends."
     puts
-    puts "At any time after the help screen, type 'save' to save the game, 'load' to load a saved game, 'exit' to end the game"
+    puts "At any time after the help screen, type 'save' to #{Color.new.green('SAVE')} the game, 'load' to #{Color.new.red('LOAD')} a saved game, 'exit' to #{Color.new.cyan('EXIT')} the program"
     puts
     puts 'For Chess rules explanation check the link in README file'
     puts
