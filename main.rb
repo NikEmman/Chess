@@ -1,6 +1,8 @@
+# rubocop:disable Metrics/MethodLength
 # frozen_string_literal: true
 
 require_relative './lib/game'
+require 'pry-byebug'
 
 # create save/load game methods
 
@@ -24,7 +26,7 @@ class Main
       end
       announce_game_result(@game)
       check_restart(@game)
-      break if @game.input == 'save' || %w[Win Draw].include?(@game.game_result)
+      break if @game.input == 'exit' || %w[Win Draw].include?(@game.game_result)
     end
   end
 
@@ -45,7 +47,7 @@ class Main
   end
 
   def check_restart(game)
-    return unless %w[resign draw].include?(game.input) || %w[Win,Draw].include?(game.game_result)
+    return unless %w[Win,Draw].include?(game.game_result)
 
     puts 'Do you want to play again? [Y/N] :'
     answer = gets.chomp.downcase
@@ -54,3 +56,4 @@ class Main
     @game = Game.new
   end
 end
+# rubocop:enable Metrics/MethodLength

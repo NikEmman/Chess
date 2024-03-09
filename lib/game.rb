@@ -1,4 +1,3 @@
-# rubocop:disable Style/EachForSimpleLoop
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
@@ -198,7 +197,7 @@ class Game
       puts "It's #{color} turn, type your move :"
       input = gets.chomp.downcase
       if !valid_input?(input)
-        puts 'Invalid input, type a move (ie a1b2), draw, resign, save, load'
+        puts 'Invalid input, type a move (ie a1b2), or a special action among: draw, resign, save, load, exit'
       elsif valid_move_input?(input) && !allowed_move?(row(input, 0), column(input, 1), row(input, 2), column(input, 3))
         puts 'Invalid move, try again'
       else
@@ -218,7 +217,8 @@ class Game
     request_draw?(input) ||
       declare_resign?(input) ||
       save_game?(input) ||
-      load_game?(input)
+      load_game?(input) ||
+      exit_game?(input)
   end
 
   def request_draw?(input)
@@ -246,7 +246,7 @@ class Game
   end
 
   def play
-    greetings
+    greetings unless @input == 'save'
     clear_screen
     loop do
       display_chessboard
@@ -254,9 +254,23 @@ class Game
       user_input
       determine_game_course(@input)
       clear_screen
-      break if  draw? || save_game?(@input) || load_game?(@input) || declare_resign?(@input) || win?(enemy_king)
+      break if draw? || special_action?(@input) || win?(enemy_king)
     end
     give_result
+  end
+
+  def special_action?(input)
+    save_game?(input) || load_game?(input) || declare_resign?(input) || exit_game?(input)
+  end
+
+  def exit_game
+    exit
+  rescue SystemExit
+    puts 'Thank you for playing!'
+  end
+
+  def exit_game?(input)
+    input == 'exit'
   end
 
   def give_result
@@ -436,4 +450,3 @@ end
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/ClassLength
 # rubocop:enable Metrics/MethodLength
-# rubocop:enable Style/EachForSimpleLoop
