@@ -406,7 +406,7 @@ class Game
     puts
     puts "If you want to propose a draw, type 'draw'. If next turn, the opponent also types 'draw', the game ends"
     puts
-    puts "At any time, type 'save' to save the game, or 'load' to load a saved game"
+    puts "At any time after the help screen, type 'save' to save the game, 'load' to load a saved game, 'exit' to end the game"
     puts
     puts 'For Chess rules explanation check the link in README file'
     puts
