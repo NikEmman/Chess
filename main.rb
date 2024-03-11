@@ -5,9 +5,7 @@ require_relative './lib/game'
 require 'tty-prompt'
 require 'pry-byebug'
 
-# create save/load game methods
-
-# fix display pieces taken next to board
+# fix replay after draw/resign
 # main class
 class Main
   attr_accessor :game
@@ -62,7 +60,7 @@ class Main
   end
 
   def check_restart(game)
-    return unless %w[Win,Draw].include?(game.game_result)
+    return unless %w[Win,Draw].include?(game.game_result) || %w[resign draw].include?(game.input)
 
     puts 'Do you want to play again? [Y/N] :'
     answer = gets.chomp.downcase
