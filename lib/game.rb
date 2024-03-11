@@ -30,8 +30,8 @@ class Game
     @last_move = []
     @whites_taken = []
     @blacks_taken = []
-    @white_draw = 0
-    @black_draw = 0
+    @white_draw_round_requested = 0
+    @black_draw_round_requested = 0
     @moves_for_draw = 0
     @input = ''
     @game_result = nil
@@ -287,18 +287,18 @@ class Game
   end
 
   def determine_game_course(input)
-    return if save_game?(@input) || load_game?(@game)
+    return if save_game?(input) || load_game?(input)
 
     if valid_move_input?(input)
       process_move(input)
-    elsif request_draw?(@input)
-      @round.even? ? @white_draw = @round : @black_draw = @round
+    elsif request_draw?(input)
+      @round.even? ? @white_draw_round_requested = @round : @black_draw_round_requested = @round
       @round += 1
     end
   end
 
   def draw?
-    (@white_draw - @black_draw).abs == 1 || fifty_move_rule? || too_few_pieces? || stalemate?
+    (@white_draw_round_requested - @black_draw_round_requested).abs == 1 || fifty_move_rule? || too_few_pieces? || stalemate?
   end
 
   def too_few_pieces?
@@ -418,7 +418,8 @@ class Game
     display_chessboard
     puts
     puts "This is a console Chess game! Choose your piece and its move by typing the piece's square and the destination square"
-    puts "In example --- #{Color.new.red('b1d1')} --- to move the white pawn two rows up."
+    puts
+    puts "In example --- #{Color.new.red('b1d1')} --- to move the White Pawn in B1 two rows up to D1."
     puts
     puts 'If you want to perform castling, use the King as the starting square and Rook as destination'
     puts "In example --- #{Color.new.red('a4a1')} ---"
