@@ -88,7 +88,8 @@ class Game
   end
 
   def allowed_move?(row_old, column_old, row_new, column_new)
-    if @board[row_old][column_old].nil?
+    current_player_color = @round.even? ? 'white' : 'black'
+    if @board[row_old][column_old].nil? || @board[row_old][column_old].color != current_player_color
       false
     else
       color = @board[row_old][column_old].color
