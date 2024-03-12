@@ -115,10 +115,10 @@ class Game
         king = @board[row][column] if @board[row][column].is_a?(King) && @board[row][column].color == color
       end
     end
-    not_threatens_king?(king)
+    no_piece_threatens_king?(king)
   end
 
-  def not_threatens_king?(king)
+  def no_piece_threatens_king?(king)
     (0..7).each do |row|
       (0..7).each do |column|
         next if @board[row][column].is_a?(King) || @board[row][column].nil?
@@ -371,7 +371,7 @@ class Game
   end
 
   def win?(king)
-    enemy_king_has_no_moves?(king) && !not_threatens_king?(king)
+    enemy_king_has_no_moves?(king) && !no_piece_threatens_king?(king)
   end
 
   def process_move(input)
