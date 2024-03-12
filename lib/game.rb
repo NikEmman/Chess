@@ -88,7 +88,6 @@ class Game
   end
 
   def allowed_move?(row_old, column_old, row_new, column_new)
-    current_player_color = @round.even? ? 'white' : 'black'
     if @board[row_old][column_old].nil? || @board[row_old][column_old].color != current_player_color
       false
     else
@@ -100,13 +99,11 @@ class Game
   end
 
   def check_for_king_check
-    color = @round.even? ? 'white' : 'black'
-    puts "Attention, #{color} King is in check!" unless king_safe?(color)
+    puts "Attention, #{current_player_color.capitalize} King is in check!" unless king_safe?(current_player_color)
   end
 
   def announce_check_mate
-    color = @round.even? ? 'Black' : 'White'
-    puts "Check mate!  #{color} King is down!! #{color} lost. Press [Enter] to continue." if win?(enemy_king)
+    puts "Check mate!  #{opponent_color.capitalize} King is down!! #{opponent_color} lost. Press [Enter] to continue." if win?(enemy_king)
     gets
   end
 
@@ -194,9 +191,8 @@ class Game
 
   def user_input
     input = nil
-    color = @round.even? ? "White's" : "Black's"
     loop do
-      puts "It's #{color} turn, type your move :"
+      puts "It's #{current_player_color.capitalize}'s turn, type your move :"
       input = gets.chomp.downcase
       if !valid_input?(input)
         puts 'Invalid input, type a move (ie a1b2), or a special action among: draw, resign, save, load, exit'
@@ -209,6 +205,15 @@ class Game
 
     @input = input
     input
+  end
+
+  def current_player_color
+    color = @round.even? ? "white" : "black"
+  end
+
+  def opponent_color
+    color = @round.even? ? "black" : "white"
+
   end
 
   def valid_input?(input)
@@ -324,11 +329,10 @@ class Game
   end
 
   def enemy_king
-    color = @round.even? ? 'black' : 'white'
     king = nil
     (0..7).each do |row|
       (0..7).each do |column|
-        next unless @board[row][column].is_a?(King) && @board[row][column].color == color
+        next unless @board[row][column].is_a?(King) && @board[row][column].color == opponent_color
 
         king = @board[row][column]
       end
@@ -347,11 +351,9 @@ class Game
   end
 
   def stalemate?
-    color = @round.even? ? 'white' : 'black'
-
     @board.each do |row|
       row.each do |piece|
-        next if piece.nil? || piece.color == color
+        next if piece.nil? || piece.color == current_player_color
 
         return false if any_valid_moves?(piece)
       end

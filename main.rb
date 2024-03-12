@@ -5,7 +5,8 @@ require_relative './lib/game'
 require 'tty-prompt'
 require 'pry-byebug'
 
-# fix replay after draw/resign
+# # add text color to error
+
 # main class
 class Main
   attr_accessor :game
