@@ -3,9 +3,7 @@
 
 require_relative './lib/game'
 require 'tty-prompt'
-require 'pry-byebug'
 
-# # add text color to error
 
 # main class
 class Main
@@ -24,7 +22,6 @@ class Main
         load_game
       end
       announce_game_result(@game)
-      # rework restart in break line
       check_restart(@game)
       break if @game.input == 'exit' || %w[Win Draw].include?(@game.game_result)
     end
@@ -70,4 +67,6 @@ class Main
     @game = Game.new
   end
 end
+a = Main.new
+a.play
 # rubocop:enable Metrics/MethodLength
