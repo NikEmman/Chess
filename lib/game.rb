@@ -135,10 +135,9 @@ class Game
   end
 
   def promote_pawn(row, column)
-    temp = @board[row][column]
-    color = temp.color
+    color = @board[row][column].color
     @board[row][column] = Queen.new(color, row, column)
-    puts "Your pawn got promoted to a Queen (don't expect a pay raise though...)"
+    puts "Your pawn got promoted to a #{Color.new.brown('Queen')} (don't expect a pay raise though...)"
   end
 
   def normal_move(row_old, column_old, row_new, column_new)
@@ -195,9 +194,9 @@ class Game
       puts "It's #{current_player_color.capitalize}'s turn, type your move :"
       input = gets.chomp.downcase
       if !valid_input?(input)
-        puts 'Invalid input, type a move (ie a1b2), or a special action among: draw, resign, save, load, exit'
+        puts "#{Color.new.red('Invalid input')}, type a move (ie a1b2), or a special action among: draw, resign, save, load, exit"
       elsif valid_move_input?(input) && !allowed_move?(row(input, 0), column(input, 1), row(input, 2), column(input, 3))
-        puts 'Invalid move, try again'
+        puts "#{Color.new.red('Invalid move')}, try again"
       else
         break
       end
@@ -282,12 +281,12 @@ class Game
 
   def give_result
     if win?(enemy_king)
-      @winner = @round.even? ? 'White' : 'Black'
+      @winner = current_player_color.capitalize
       @game_result = 'Win'
     elsif draw?
       @game_result = 'Draw'
     elsif declare_resign?(@input)
-      @winner = @round.even? ? 'Black' : 'White'
+      @winner = opponent_color.capitalize
       @game_result = 'Win'
     end
   end
