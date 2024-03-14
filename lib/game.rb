@@ -97,12 +97,13 @@ class Game
     end
   end
 
-  def check_for_king_check
+  def announce_king_check
     puts "Attention, #{current_player_color.capitalize} King is in check!" unless king_safe?(current_player_color)
   end
 
   def announce_check_mate
     puts "Check mate!  #{opponent_color.capitalize} King is down!! #{opponent_color} lost. Press [Enter] to continue." if win?(enemy_king)
+    # gets is used to pause game so user can read the msg before asked to replay
     gets
   end
 
@@ -211,7 +212,6 @@ class Game
 
   def opponent_color
     color = @round.even? ? "black" : "white"
-
   end
 
   def valid_input?(input)
@@ -255,7 +255,7 @@ class Game
     clear_screen
     loop do
       display_chessboard
-      check_for_king_check
+      announce_king_check
       user_input
       determine_game_course(@input)
       clear_screen
