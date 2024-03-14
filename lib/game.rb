@@ -11,7 +11,6 @@ require_relative 'bishop'
 require_relative 'queen'
 require_relative 'king'
 require_relative 'color'
-require 'pry-byebug'
 # game class
 class Game
   attr_accessor :board, :pieces, :last_move, :input, :game_result, :winner
