@@ -110,8 +110,8 @@ class Game
   def king_safe?(color)
     king = nil
 
-    (0..7).each do |row|
-      (0..7).each do |column|
+    8.times do |row|
+      8.times do |column|
         king = @board[row][column] if @board[row][column].is_a?(King) && @board[row][column].color == color
       end
     end
@@ -119,8 +119,8 @@ class Game
   end
 
   def no_piece_threatens_king?(king)
-    (0..7).each do |row|
-      (0..7).each do |column|
+    8.times do |row|
+      8.times do |column|
         next if @board[row][column].is_a?(King) || @board[row][column].nil?
 
         return false if @board[row][column].valid_move?(king.row, king.column, @board)
@@ -207,11 +207,11 @@ class Game
   end
 
   def current_player_color
-    color = @round.even? ? "white" : "black"
+    @round.even? ? 'white' : 'black'
   end
 
   def opponent_color
-    color = @round.even? ? "black" : "white"
+    @round.even? ? 'black' : 'white'
   end
 
   def valid_input?(input)
@@ -284,6 +284,8 @@ class Game
       @game_result = 'Win'
     elsif draw?
       @game_result = 'Draw'
+    elsif exit_game?(@input)
+      exit_game
     elsif declare_resign?(@input)
       @winner = opponent_color.capitalize
       @game_result = 'Win'
@@ -328,8 +330,8 @@ class Game
 
   def enemy_king
     king = nil
-    (0..7).each do |row|
-      (0..7).each do |column|
+    8.times do |row|
+      8.times do |column|
         next unless @board[row][column].is_a?(King) && @board[row][column].color == opponent_color
 
         king = @board[row][column]
@@ -361,8 +363,8 @@ class Game
   end
 
   def any_valid_moves?(piece)
-    (0..7).each do |row|
-      (0..7).each do |column|
+    8.times do |row|
+      8.times do |column|
         return true if piece.valid_move?(row, column, @board)
       end
     end
